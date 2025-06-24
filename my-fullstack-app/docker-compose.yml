@@ -1,0 +1,62 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: mydb
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3308:80"  # React 網頁在本機的 3308 端口開放
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5000"  # ASP.NET API 對外開放 5001，容器內仍聽 5000
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - DB_HOST=db
+      - DB_USER=AdminUser
+      - DB_PASSWORD=1qaz1232wsx4563edc
+      - DB_NAME=mydb
+      - REDIS_HOST=redis
+      - ASPNETCORE_URLS=http://+:5000
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
