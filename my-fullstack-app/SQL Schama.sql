@@ -10,7 +10,8 @@ INSERT INTO Menus (Path, Name, Disabled, GroupId) VALUES
 ('/schedules', '排班表', FALSE, 1),
 
 -- 群組 2: 病患管理
-('/medical_records', '診療紀錄', FALSE, 2),
+('/treatmentsdetail', '診療詳情', FALSE, 2),
+('/treatments', '診療紀錄', FALSE, 2),
 ('/patients', '病患列表', FALSE, 2),
 ('/patientsdetail', '病患詳情', FALSE, 2),
 ('/treatment_costs', '診療費用', FALSE, 2),

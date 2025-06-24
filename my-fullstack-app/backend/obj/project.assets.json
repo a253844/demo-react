@@ -3239,11 +3239,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\user\\Desktop\\my-fullstack-app\\backend\\MyApi.csproj",
+      "projectUniqueName": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\MyApi.csproj",
       "projectName": "MyApi",
-      "projectPath": "C:\\Users\\user\\Desktop\\my-fullstack-app\\backend\\MyApi.csproj",
+      "projectPath": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\MyApi.csproj",
       "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\user\\Desktop\\my-fullstack-app\\backend\\obj\\",
+      "outputPath": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -12,6 +12,7 @@ namespace MyApi.Models
         public string DiscomfortArea { get; set; }
         public string DiscomfortSituation { get; set; }
         public string DiscomfortPeriod { get; set; }
+        public int DiscomfortDegree { get; set; }
         public string PossibleCauses { get; set; }
         public string TreatmentHistory { get; set; }
         public string HowToKnowOur { get; set; }
