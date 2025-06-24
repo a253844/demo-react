@@ -6,17 +6,17 @@ using Microsoft.Extensions.Configuration;
 using System;
 using MyApi.Service;
 using MyApi.Data;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-#region MySQL 連線
-
-// Add MySQL
 
 var connectionDBName = "DefaultConnection";
 var connectionRedisName = "Redis";
 connectionDBName = "DebugConnection";
 connectionRedisName = "DebugRedis";
+
+#region MySQL 連線
 
 var connectionString = builder.Configuration.GetConnectionString(connectionDBName);
 
@@ -57,12 +57,34 @@ builder.Services.AddSwaggerGen();
 
 #endregion
 
+#region JWT 驗證服務
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+#endregion
+
 var app = builder.Build();
 app.UseCors("AllowAll");
 app.UseRouting();
 app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseAuthentication();
+app.UseAuthorization();
+
 
 using (var scope = app.Services.CreateScope())
 {

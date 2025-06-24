@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MyApi.Service;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Threading.Tasks;
 
 namespace MyApi.Controllers
@@ -35,5 +38,6 @@ namespace MyApi.Controllers
             var deleted = await _redisService.DeleteKeyAsync(key);
             return deleted ? Ok("Deleted") : NotFound();
         }
+
     }
 }

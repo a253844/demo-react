@@ -1,4 +1,5 @@
 ﻿using StackExchange.Redis;
+using System;
 using System.Threading.Tasks;
 
 namespace MyApi.Service
@@ -28,5 +29,19 @@ namespace MyApi.Service
             return await _database.KeyDeleteAsync(key);
         }
 
+        internal Task<bool> StringSetAsync(string key, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal Task<string> StringGetAsync(string key)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal Task<bool> KeyDeleteAsync(string key)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

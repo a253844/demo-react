@@ -7,6 +7,7 @@ import PatientsDetailPage from '../components/Page/PatientsDetailPage';
 import SchedulesPage from '../components/Page/SchedulesPage';
 import Treatment_Costs from '../components/Page/Treatment_Costs';
 import UsersPage from '../components/Page/UsersPage';
+import DebugPage from '../components/Page/DebugPage';
 
 export const componentMap: { [key: string]: React.ComponentType<any> } = {
   '/doctors': DoctorsPage,
@@ -17,4 +18,5 @@ export const componentMap: { [key: string]: React.ComponentType<any> } = {
   '/schedules': SchedulesPage,
   '/treatment_costs': Treatment_Costs,
   '/users': UsersPage,
+  '/debug': DebugPage,
 };

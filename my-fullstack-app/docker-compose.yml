@@ -41,6 +41,8 @@ services:
     depends_on:
       - db
       - redis
+    volumes:
+      - ./uploads:/app/uploads
     environment:
       - DB_HOST=db
       - DB_USER=AdminUser

@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyApi.Data;
 using MyApi.Models;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MyApi.Controllers
@@ -33,6 +35,21 @@ namespace MyApi.Controllers
             return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
         }
 
+        [HttpPost("ResetPassWord")]
+        public IActionResult ResetPassWord(string UserId)
+        {
+            var user = _context.Users.SingleOrDefault(u => u.Id.ToString() == UserId);
+
+            if(user == null)
+            {
+                return Unauthorized("用戶不存在");
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword("123456");
+            _context.SaveChanges();
+
+            return Ok();
+        }
 
         [HttpGet]
         public IActionResult Get()
