@@ -27,19 +27,26 @@ export default class Layout extends Component {
   };
 
   render() {
-    const menuItems = [
-      { label: "Dashboard", icon: "pi pi-home" },
-      { label: "Reports", icon: "pi pi-chart-bar" },
-      { label: "Settings", icon: "pi pi-cog" },
+    const HeaderItems = [
+      { label: "首頁", icon: "pi pi-home" },
+      { label: "報表", icon: "pi pi-chart-bar" },
+      { label: "設置", icon: "pi pi-cog" },
     ];
+
+    const HeaderEndItems = (
+      <div className="flex align-items-center gap-2">
+          <label className="font-bold block mb-2">醫生您好</label>
+          <Button icon="pi pi-sign-out" label="登出" className="p-button-text" />
+      </div>
+    );
 
     return (
         
         <div className="layout-wrapper">
             {/* 頂部 Header */}
             <Menubar
-                model={menuItems}
-                end={<Button icon="pi pi-user" label="Profile" className="p-button-text" />}
+                model={HeaderItems}
+                end={HeaderEndItems}
             />
 
             {/* 右側可收折 Menu */}

@@ -7,8 +7,10 @@ import Layout from './components/Layout/Layout'
 
 import HomePage from './components/Page/HomePage'
 import DoctorsPage from './components/Page/DoctorsPage'
+import DoctorDetailPage from './components/Page/DoctorDetailPage'
 import Medical_RecordsPage from './components/Page/Medical_RecordsPage'
 import PatientsPage from './components/Page/PatientsPage'
+import PatientsDetailPage from './components/Page/PatientsDetailPage'
 import SchedulesPage from './components/Page/SchedulesPage'
 import Treatment_Costs from './components/Page/Treatment_Costs'
 import UsersPage from './components/Page/UsersPage'
@@ -43,8 +45,10 @@ export default class App extends React.Component {
 
        menu : [
         {path: '/doctors', element: DoctorsPage, name: '治療師列表', disabled : false, groupid: "0"},
+        {path: '/doctordetail', element: DoctorDetailPage, name: '治療師詳情', disabled : false, groupid: "0"},
         {path: '/medical_records', element: Medical_RecordsPage, name: '診療紀錄', disabled : false, groupid: "1"},
         {path: '/patients', element: PatientsPage, name: '病患列表', disabled : false, groupid: "1"},
+        {path: '/patientsdetail', element: PatientsDetailPage, name: '病患詳情', disabled : false, groupid: "1"},
         {path: '/schedules', element: SchedulesPage, name: '排班表', disabled : false, groupid: "0"},
         {path: '/treatment_costs', element: Treatment_Costs, name: '診療費用', disabled : false, groupid: "1"},
         {path: '/users', element: UsersPage, name: '後台用戶', disabled : false, groupid: "2"},
