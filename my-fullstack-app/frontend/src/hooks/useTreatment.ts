@@ -29,6 +29,7 @@ export interface TreatmentItem {
 
 export default function useTreatment(
   patientname: string,
+  nationalId: string,
   doctortid: number | null | undefined,
   startTime: Date | null | undefined,
   endTime: Date | null | undefined,
@@ -43,6 +44,7 @@ export default function useTreatment(
       api.get<TreatmentItem[]>("/api/doctors/GetTreatmentList", {
         params: {
           patientname: patientname,
+          nationalId: nationalId,
           doctortid: doctortid,
           starttime: startTime?.toISOString(),
           endtime: endTime?.toISOString(),
@@ -54,7 +56,7 @@ export default function useTreatment(
     };
 
     fetchTreatments();
-  }, [patientname, doctortid, startTime, endTime, refreshKey]);
+  }, [patientname, nationalId, doctortid, startTime, endTime, refreshKey]);
 
   return { treatments, loading };
 }

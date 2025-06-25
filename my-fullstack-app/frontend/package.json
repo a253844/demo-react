@@ -15,6 +15,7 @@
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
     "axios": "^1.9.0",
+    "date-fns": "^4.1.0",
     "fullcalendar": "^6.1.17",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",

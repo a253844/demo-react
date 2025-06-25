@@ -11,6 +11,8 @@ import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import useUser from '../../hooks/useUser';
 import api from "../../services/api"; 
 import { Toast } from "primereact/toast";
+import { Tag } from 'primereact/tag';
+import { format } from "date-fns";
 
 interface OptionItem {
   code: number;
@@ -21,6 +23,7 @@ const TreatmentsPage: React.FC = () => {
     const navigate = useNavigate();
     const toast = useRef<Toast>(null);
     const [name, setName] = useState('');
+    const [nationalId, setNationalId] = useState('');
     const [doctortId, setDoctortId] = useState<number | null | undefined>(undefined);
     const [starttime, setStarttime] = useState<Date | null | undefined>(undefined);
     const [endtime, setEndtime] = useState<Date | null | undefined>(undefined);
@@ -32,13 +35,53 @@ const TreatmentsPage: React.FC = () => {
 
     const [searchParams, setSearchParams] = useState({
         name: '',
+        nationalId: '',
         doctortId: null as number | null | undefined,
         starttime: null as Date | null | undefined,
         endtime: null as Date | null | undefined,
         refreshKey: 0,
     });
 
-    const { treatments, loading } = useTreatment(searchParams.name, searchParams.doctortId,searchParams.starttime, searchParams.endtime, refreshKey);
+    const { treatments, loading } = useTreatment(
+        searchParams.name, 
+        searchParams.nationalId, 
+        searchParams.doctortId, 
+        searchParams.starttime, 
+        searchParams.endtime, 
+        refreshKey
+    );
+
+    const getStep = (status: string) => {
+        switch (status) {
+            case '10':
+                return 'info';
+
+            case '20':
+                return 'warning';
+
+            case '30':
+                return 'danger';
+
+            case '40':
+                return 'success';
+
+            case 'renewal':
+                return null;
+        }
+    };
+
+    const genderdict: { [key: string]: string } = {
+        "1": "男性",
+        "2": "女性",
+        "3": "其他"
+    };
+
+    const stepdict: { [key: string]: string } = {
+        "10": "新案",
+        "20": "治療",
+        "30": "上傳",
+        "40": "結案"
+    };
 
     useEffect(() => {
         if (deletedFlag && !loading) {
@@ -60,7 +103,7 @@ const TreatmentsPage: React.FC = () => {
 
     const handleSearchClick = () => {
         setRefreshKey(refreshKey + 1)
-        setSearchParams({ name, doctortId, starttime, endtime, refreshKey});
+        setSearchParams({ name, nationalId, doctortId, starttime, endtime, refreshKey});
     };
 
     const handleAddClick = () => {
@@ -128,6 +171,29 @@ const TreatmentsPage: React.FC = () => {
             </div>
         );
     };
+    const stepBodyTemplate = (rowData: any) => {
+        return (
+            <div>
+                <Tag value={stepdict[String(rowData.step)]} severity={getStep(String(rowData.step))} />
+            </div>
+        );
+    };
+
+    const genderBodyTemplate = (rowData: any) => {
+        var data = String(rowData.patientGender)
+        const gendar = genderdict[data]
+            return (
+                <div>
+                    {gendar}
+                </div>
+            );
+        };
+
+    const formatDate = (value: string) => {
+        if (!value) return "";
+        const date = new Date(value);
+        return format(new Date("2025-06-25T15:59:35"), "yyyy/MM/dd HH:mm:ss");
+    };
 
     if (loading) {
           return (
@@ -141,7 +207,7 @@ const TreatmentsPage: React.FC = () => {
         <div>
             <Toast ref={toast} />
             <div className="card flex flex-wrap gap-3 p-fluid">
-                <div className="col-8 md:col-2">
+                <div className="col-6 md:col-2">
                     <InputText
                         id="name"
                         type="text"
@@ -149,7 +215,7 @@ const TreatmentsPage: React.FC = () => {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="病患姓名" />
                 </div>
-                <div className="col-8 md:col-2">
+                <div className="col-5 md:col-2">
                     <Dropdown 
                         value={doctortId} 
                         onChange={(e: DropdownChangeEvent) =>  setDoctortId(e.value)} 
@@ -157,6 +223,15 @@ const TreatmentsPage: React.FC = () => {
                         optionLabel="name" 
                         placeholder="醫師選單" />
                 </div>
+                <div className="col-6 md:col-2">
+                    <InputText
+                        id="name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setNationalId(e.target.value)}
+                        placeholder="病患身分證" />
+                </div>
+                
                 <div className="col-8 md:col-2">
                     <Calendar 
                         id="starttime" 
@@ -180,9 +255,6 @@ const TreatmentsPage: React.FC = () => {
                 <div className="col-4 md:col-1">
                     <Button label="查詢" icon="pi pi-search" onClick={handleSearchClick}/>
                 </div>
-                <div className="col-4 md:col-1">
-                    <Button label="新增" icon="pi pi-plus" onClick={handleAddClick} />
-                </div>
             </div>
             <div className="card">
                     <DataTable
@@ -194,12 +266,14 @@ const TreatmentsPage: React.FC = () => {
                       paginatorLeft={paginatorLeft}
                       paginatorRight={paginatorRight}
                     >
-                      <Column field="OrdreNo" header="OrdreNo" style={{ width: '5%' }} />
-                      <Column field="fullName" header="姓名" style={{ width: '10%' }} />
-                      <Column field="gender" header="性別" style={{ width: '5%' }} />
-                      <Column field="gender" header="年齡" style={{ width: '5%' }} />
-                      <Column field="createdAt" header="新增日期" style={{ width: '10%' }} />
-                      <Column field="createdAt" header="更新日期" style={{ width: '10%' }} />
+                      <Column field="ordreNo" header="案號" style={{ width: '5%' }} />
+                      <Column field="patientName" header="病患姓名" style={{ width: '5%' }} />
+                      <Column field="doctorName" header="治療醫師" style={{ width: '5%' }} />
+                      <Column field="patientGender" header="性別" style={{ width: '3%' }} body={genderBodyTemplate}/>
+                      <Column field="patientGender" header="年齡" style={{ width: '3%' }} />
+                      <Column field="step" header="階段" style={{ width: '3%' }} body={stepBodyTemplate}/>
+                      <Column field="createdAt" header="新增日期" style={{ width: '8%' }} body={(rowData) => formatDate(rowData.createdAt)} />
+                      <Column field="updatedAt" header="更新日期" style={{ width: '8%' }} body={(rowData) => formatDate(rowData.createdAt)}/>
                       <Column field="optionUserId" header="操作人" style={{ width: '5%' }} />
                       <Column field="option" header="功能" style={{ width: '12%' }} body={optionBodyTemplate} />
                     </DataTable>

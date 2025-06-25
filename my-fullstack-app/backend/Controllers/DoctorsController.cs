@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyApi.Data;
@@ -108,7 +109,7 @@ namespace MyApi.Controllers
         }
 
         [HttpGet("GetTreatmentList")]
-        public IActionResult GetTreatmentList([FromQuery] string patientname, int? doctortid, TreatmentStep? step, DateTime? starttime, DateTime? endtime)
+        public IActionResult GetTreatmentList([FromQuery] string patientname, string? nationalId, int? doctortid, TreatmentStep? step, DateTime? starttime, DateTime? endtime)
         {
 
             var treatments = new List<Treatment>();
@@ -123,6 +124,11 @@ namespace MyApi.Controllers
             {
                 treatments = treatments.Where(p => p.Patient.FullName.Contains(patientname))
                 .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(nationalId))
+            {
+                treatments = treatments.Where(p => p.Patient.NationalId == nationalId).ToList();
             }
 
             if (doctortid != null)
@@ -140,7 +146,23 @@ namespace MyApi.Controllers
                 treatments = treatments.Where(p => p.CreatedAt >= starttime && p.CreatedAt <= endtime).ToList();
             }
 
-            return Ok(treatments);
+            var result = treatments.Select(t => new
+            {
+                DoctorId = t.User.Id,
+                DoctorName = t.User.Name,
+
+                PatientId = t.Patient.Id,
+                NationalId = t.Patient.NationalId,
+                PatientName = t.Patient.FullName,
+                PatientGender = t.Patient.Gender,
+                OrdreNo = t.OrdreNo,
+                Step = t.Step,
+                CreatedAt = t.CreatedAt,
+                UpdatedAt = t.UpdatedAt,
+                OptionUserId = t.OptionUserId
+            }).ToList();
+
+            return Ok(result);
         }
 
         [HttpPost("InsertTreatment")]
@@ -165,6 +187,7 @@ namespace MyApi.Controllers
 
                 data.OrdreNo = DateTime.Now.ToString("yyyyMMddhhmmss");
                 data.OptionUserId = int.Parse(userId.Value);
+                data.Step = TreatmentStep.Opencase;
                 data.UserId = int.Parse(userId.Value);
                 data.UpdatedAt = DateTime.Now;
 
@@ -237,5 +260,26 @@ namespace MyApi.Controllers
 
             return Ok("治療案件已刪除");
         }
+
+        [HttpGet("GetCaseStatus")]
+        public IActionResult GetCaseStatus([FromQuery] string nationalId)
+        {
+            var treatments = new List<Treatment>();
+
+            treatments = _context.Treatments
+                .Include(t => t.User)
+                .Include(t => t.Patient)
+                .Where(t => t.Step != TreatmentStep.CaseClose && t.Patient.NationalId == nationalId)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToList();
+
+            if (treatments.Count > 0)
+            {
+                return BadRequest("治療案件尚未結束");
+            }
+
+            return Ok();
+        }
+
     }
 }

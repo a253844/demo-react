@@ -66,12 +66,12 @@ namespace MyApi.Controllers
                 var userId = User.FindFirst("UserId");
 
                 var Patients = _context.Patients
-                .Where(p => p.FullName == data.FullName && p.IsDelete == false)
+                .Where(p => p.NationalId == data.NationalId && p.IsDelete == false)
                 .ToList();
 
                 if (Patients.Count > 0)
                 {
-                    return BadRequest("已有相同病患姓名");
+                    return BadRequest("已有病患資料");
                 }
 
                 data.OptionUserId = int.Parse(userId.Value);

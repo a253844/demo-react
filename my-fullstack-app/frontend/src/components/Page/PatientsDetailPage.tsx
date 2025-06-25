@@ -80,20 +80,18 @@ const PatientsDetailPage: React.FC = () => {
     };
 
     const handleSubmit = async () => {
-        try {
-            if (patient) {
-                // 編輯模式
-                await api.put(`/api/patients/Update/`, formData);
-                toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已更新" });
-            } else {
-                // 新增模式
-                await api.post("/api/patients/Insert", formData);
-                toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已新增" });
-            }
-            setTimeout(() => navigate("/patients"), 1500); // 送出後導回列表頁
-        } catch (error) {
-            toast.current?.show({ severity: "error", summary: "錯誤", detail: patient ? "更新失敗" : "新增失敗" });
+        if (patient) {
+            // 編輯模式
+            await api.put(`/api/patients/Update/`, formData)
+            .then((res) => toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已更新" }) )
+            .catch((err) => toast.current?.show({ severity: "error", summary: "更新失敗", detail: err.response.data}) );
+        } else {
+            // 新增模式
+            await api.post("/api/patients/Insert", formData)
+            .then((res) => toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已新增" }) )
+            .catch((err) => toast.current?.show({ severity: "error", summary: "新增失敗", detail: err.response.data}) );
         }
+        setTimeout(() => navigate("/patients"), 1500); // 送出後導回列表頁
     };
 
     const handleMedicalHistoryChange = (e: CheckboxChangeEvent) => {

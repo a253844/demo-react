@@ -9,15 +9,16 @@ import { Checkbox, CheckboxChangeEvent } from "primereact/checkbox";
 import { Image } from 'primereact/image';
 import { Slider, SliderChangeEvent } from "primereact/slider";
 import { InputText } from "primereact/inputtext";
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 
 interface Treatment {
-  frontAndBack: string[];
-  discomfortArea: string[];
-  discomfortSituation: string[];
+  frontAndBack: string;
+  discomfortArea: string;
+  discomfortSituation: string;
   discomfortPeriod: string;
   discomfortDegree: number;
-  possibleCauses: string[];
-  treatmentHistory: string[];
+  possibleCauses: string;
+  treatmentHistory: string;
   howToKnowOur: string;
   hospitalFormUrl: string;
   treatmentConsentFormUrl: string;
@@ -28,21 +29,25 @@ interface Treatment {
   patientId: number;
 }
 
+interface OptionItem {
+    name: string;
+    code: string;
+}
+
 const TreatmentsDetailPage: React.FC = () => {
   const location = useLocation();
   const patient = location.state?.patient;
   const toast = useRef<Toast>(null);
   const navigate = useNavigate();
   const { dataType, loading } = useDataType();
-
   const [formData, setFormData] = useState<Treatment>({
-    frontAndBack: [],
-    discomfortArea: [],
-    discomfortSituation: [],
+    frontAndBack: "",
+    discomfortArea: "",
+    discomfortSituation: "",
     discomfortPeriod: "",
     discomfortDegree: 0,
-    possibleCauses: [],
-    treatmentHistory: [],
+    possibleCauses: "",
+    treatmentHistory: "",
     howToKnowOur: "",
     hospitalFormUrl: "",
     treatmentConsentFormUrl: "",
@@ -53,6 +58,20 @@ const TreatmentsDetailPage: React.FC = () => {
     patientId: patient?.id || 0
   });
 
+  const Option: OptionItem[] = [
+        { name: '0', code: '0' },
+        { name: '1', code: '1' },
+        { name: '2', code: '2' },
+        { name: '3', code: '3' },
+        { name: '4', code: '4' },
+        { name: '5', code: '5' },
+        { name: '6', code: '6' },
+        { name: '7', code: '7' },
+        { name: '8', code: '8' },
+        { name: '9', code: '9' },
+        { name: '10', code: '10' }
+    ];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
           const { name, value } = e.target;
           setFormData((prev) => ({ ...prev, [name]: value }));
@@ -60,24 +79,30 @@ const TreatmentsDetailPage: React.FC = () => {
 
   const handleCheckboxChange = (name: keyof Treatment, value: string, checked: boolean) => {
     setFormData(prev => {
-      const current = (prev[name] as string[]) || [];
-      const updated = checked
-        ? [...current, value]
-        : current.filter(item => item !== value);
-      return { ...prev, [name]: updated };
+      const current = (prev[name] || "") as string;
+      const currentArr = current ? current.split(",") : [];
+
+      const updatedArr = checked
+        ? currentArr.includes(value)
+          ? currentArr
+          : [...currentArr, value]
+        : currentArr.filter(item => item !== value);
+
+    return { ...prev, [name]: updatedArr.join(",") };
     });
   };
 
-  const handleSliderChange = (name: keyof Treatment, value: number) => {
+  const handleDropdownChange = (name: keyof Treatment, value: number) => {
       setFormData(prev => {
-        const current = (prev[name] as string[]) || [];
+        const current = (prev[name]);
         return { ...prev, [name]: value };
       });
     };
 
   const handleSubmit = async () => {
+    debugger
     try {
-      await api.post("/api/doctor/InsertTreatment", formData);
+      await api.post("/api/doctors/InsertTreatment", formData);
       toast.current?.show({ severity: "success", summary: "成功", detail: "治療資料已新增" });
       setTimeout(() => navigate("/treatments"), 1500);
     } catch (err: any) {
@@ -108,7 +133,7 @@ const TreatmentsDetailPage: React.FC = () => {
                 inputId={`front-${option.value}`}
                 value={option.value}
                 onChange={(e) => handleCheckboxChange("frontAndBack", option.value, e.checked?? false)}
-                checked={formData.frontAndBack.includes(option.value)}
+                checked={formData.frontAndBack.split(",").includes(option.value)}
               />
               <label htmlFor={`front-${option.value}`} className="ml-2">{option.label}</label>
             </div>
@@ -129,7 +154,7 @@ const TreatmentsDetailPage: React.FC = () => {
                 inputId={`front-${option.value}`}
                 value={option.value}
                 onChange={(e) => handleCheckboxChange("discomfortArea", option.value, e.checked?? false)}
-                checked={formData.discomfortArea.includes(option.value)}
+                checked={formData.discomfortArea.split(",").includes(option.value)}
               />
               <label htmlFor={`front-${option.value}`} className="ml-2">{option.label}</label>
             </div>
@@ -146,7 +171,7 @@ const TreatmentsDetailPage: React.FC = () => {
                 inputId={`front-${option.value}`}
                 value={option.value}
                 onChange={(e) => handleCheckboxChange("discomfortSituation", option.value, e.checked?? false)}
-                checked={formData.discomfortSituation.includes(option.value)}
+                checked={formData.discomfortSituation.split(",").includes(option.value)}
               />
               <label htmlFor={`front-${option.value}`} className="ml-2">{option.label}</label>
             </div>
@@ -163,13 +188,13 @@ const TreatmentsDetailPage: React.FC = () => {
                 inputId={`front-${option.value}`}
                 value={option.value}
                 onChange={(e) => handleCheckboxChange("possibleCauses", option.value, e.checked?? false)}
-                checked={formData.possibleCauses.includes(option.value)}
+                checked={formData.possibleCauses.split(",").includes(option.value)}
               />
               <label htmlFor={`front-${option.value}`} className="ml-2">{option.label}</label>
             </div>
           ))}
           </div>
-          <InputTextarea  name="medicalHistory" rows={1} value={formData.possibleCauses.join()} onChange={handleChange} />
+          <InputTextarea  name="medicalHistory" rows={1} value={formData.possibleCauses} onChange={handleChange} />
         </div>
 
         <div className="col-12 md:col-5">
@@ -192,15 +217,17 @@ const TreatmentsDetailPage: React.FC = () => {
         <div className="col-12 md:col-6">
           <label>目前不適可承受程度</label>
           <div className="flex flex-wrap gap-3">
+            <div className="flex col-12">
+            <Dropdown 
+                  value={formData.discomfortDegree} 
+                  onChange={(e: DropdownChangeEvent) =>  handleDropdownChange("discomfortDegree", e.value)} 
+                  options={Option} 
+                  optionLabel="name" 
+                  placeholder="" />
+            </div>
+            <div className="flex">
             <Image src="/images/NumericalRaringAcale.png" alt="Image" imageStyle={{ width: "100%", maxWidth: "550px", height: "auto" }} />
-            <InputText value={formData.discomfortDegree.toString()} onChange={handleChange} className="w-full" width={25}/>
-            <Slider  
-              name="discomfortDegree" 
-              max={10}
-              value={formData.discomfortDegree} 
-              onChange={(e: SliderChangeEvent) => handleSliderChange("discomfortDegree", e.value as number)} 
-              className="w-14rem" 
-              step={1} />
+              </div>
           </div>
           
         </div>  
@@ -218,13 +245,13 @@ const TreatmentsDetailPage: React.FC = () => {
                   inputId={`front-${option.value}`}
                   value={option.value}
                   onChange={(e) => handleCheckboxChange("treatmentHistory", option.value, e.checked?? false)}
-                  checked={formData.treatmentHistory.includes(option.value)}
+                  checked={formData.treatmentHistory.split(",").includes(option.value)}
                 />
                 <label htmlFor={`front-${option.value}`} className="ml-2">{option.label}</label>
               </div>
             ))}
           </div>
-          <InputTextarea  name="medicalHistory" rows={1} value={formData.treatmentHistory.join()} onChange={handleChange} />
+          <InputTextarea  name="medicalHistory" rows={1} value={formData.treatmentHistory} onChange={handleChange} />
         </div>
 
         <div className="col-12 md:col-5">
