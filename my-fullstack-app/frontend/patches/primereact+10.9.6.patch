@@ -1,0 +1,43 @@
+diff --git a/node_modules/primereact/menubar/menubar.cjs.js b/node_modules/primereact/menubar/menubar.cjs.js
+index 0897aa3..dc9b422 100644
+--- a/node_modules/primereact/menubar/menubar.cjs.js
++++ b/node_modules/primereact/menubar/menubar.cjs.js
+@@ -516,7 +516,8 @@ var Menubar = /*#__PURE__*/React__namespace.memo(/*#__PURE__*/React__namespace.f
+   var _useEventListener = hooks.useEventListener({
+       type: 'click',
+       listener: function listener(event) {
+-        var isOutsideButton = menuButtonRef.current && !menuButtonRef.current.contains(event.target);
++        //var isOutsideButton = menuButtonRef.current && !menuButtonRef.current.contains(event.target);
++        var isOutsideButton = rootMenuRef.current && !rootMenuRef.current.contains(event.target);
+         if (isOutsideButton) {
+           hide();
+         }
+diff --git a/node_modules/primereact/menubar/menubar.esm.js b/node_modules/primereact/menubar/menubar.esm.js
+index 9e4c7f3..abaa32e 100644
+--- a/node_modules/primereact/menubar/menubar.esm.js
++++ b/node_modules/primereact/menubar/menubar.esm.js
+@@ -489,7 +489,9 @@ var Menubar = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (in
+   var _useEventListener = useEventListener({
+       type: 'click',
+       listener: function listener(event) {
+-        var isOutsideButton = menuButtonRef.current && !menuButtonRef.current.contains(event.target);
++        //var isOutsideButton = menuButtonRef.current && !menuButtonRef.current.contains(event.target);
++        var isOutsideButton = rootMenuRef.current && !rootMenuRef.current.contains(event.target);
++        debugger
+         if (isOutsideButton) {
+           hide();
+         }
+diff --git a/node_modules/primereact/menubar/menubar.js b/node_modules/primereact/menubar/menubar.js
+index 987667b..4c5c5a3 100644
+--- a/node_modules/primereact/menubar/menubar.js
++++ b/node_modules/primereact/menubar/menubar.js
+@@ -505,7 +505,8 @@ this.primereact.menubar = (function (exports, React, PrimeReact, componentbase,
+     var _useEventListener = hooks.useEventListener({
+         type: 'click',
+         listener: function listener(event) {
+-          var isOutsideButton = menuButtonRef.current && !menuButtonRef.current.contains(event.target);
++          //var isOutsideButton = menuButtonRef.current && !menuButtonRef.current.contains(event.target);
++          var isOutsideButton = rootMenuRef.current && !rootMenuRef.current.contains(event.target);
+           if (isOutsideButton) {
+             hide();
+           }
