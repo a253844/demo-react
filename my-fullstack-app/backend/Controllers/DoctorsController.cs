@@ -180,7 +180,7 @@ namespace MyApi.Controllers
                 {
                     if(treatments.First().Step != TreatmentStep.CaseClose)
                     {
-                        return BadRequest("此病患姓名尚未結束療程");
+                        return BadRequest("此病患尚未結束療程");
                     }
                     
                 }

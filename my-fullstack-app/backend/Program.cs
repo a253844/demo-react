@@ -8,6 +8,8 @@ using MyApi.Service;
 using MyApi.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,6 +87,15 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 
+#region ¹Ï¤ù¹wÄý
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    RequestPath = "/uploads"
+});
+
+#endregion
 
 using (var scope = app.Services.CreateScope())
 {

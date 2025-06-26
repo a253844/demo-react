@@ -146,7 +146,7 @@ const TreatmentsPage: React.FC = () => {
                         label="編輯" 
                         type="button" 
                         icon="pi pi-file-edit" 
-                        onClick={() => navigate(`/patientsdetail`, { state: { patient: rowData } })} 
+                        onClick={() => navigate(`/treatmentsDetail`, { state: { patient: rowData } })} 
                         size="small" 
                         severity="info" 
                         style={{ fontSize: '1rem', margin: '3px' }} 
