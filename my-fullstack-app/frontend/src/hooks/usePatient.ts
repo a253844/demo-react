@@ -9,6 +9,9 @@ interface PatientsItem {
     Phone: string;
     Address: string;
     BirthDate: string;
+    Emergencycontact: string,
+    Emergencyrelationship: string,
+    Emergencyphone: string,
     NationalId: string;
     MedicalHistory: string;
     ExerciseHabit: string;

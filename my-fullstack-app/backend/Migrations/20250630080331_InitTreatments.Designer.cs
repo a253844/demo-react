@@ -12,8 +12,8 @@ using MyApi.Data;
 namespace MyApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250624070551_addTreatmentDiscomfortDegree")]
-    partial class addTreatmentDiscomfortDegree
+    [Migration("20250630080331_InitTreatments")]
+    partial class InitTreatments
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -254,11 +254,11 @@ namespace MyApi.Migrations
 
             modelBuilder.Entity("MyApi.Models.Treatment", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Assessment")
                         .HasColumnType("longtext");
@@ -287,9 +287,6 @@ namespace MyApi.Migrations
                     b.Property<string>("HowToKnowOur")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDelete")
                         .HasColumnType("tinyint(1)");
 
@@ -301,6 +298,9 @@ namespace MyApi.Migrations
 
                     b.Property<string>("OrdreNo")
                         .HasColumnType("longtext");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Plan")
                         .HasColumnType("longtext");
@@ -324,9 +324,14 @@ namespace MyApi.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("UserId", "PatientId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Treatments");
                 });

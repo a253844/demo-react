@@ -15,8 +15,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionDBName = "DefaultConnection";
 var connectionRedisName = "Redis";
-connectionDBName = "DebugConnection";
-connectionRedisName = "DebugRedis";
+if(builder.Configuration.GetConnectionString("Mode") == "true")
+{
+    connectionDBName = "DebugConnection";
+    connectionRedisName = "DebugRedis";
+}
 
 #region MySQL ³s½u
 

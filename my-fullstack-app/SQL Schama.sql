@@ -81,3 +81,5 @@ INSERT INTO DataTypes (Number, Name, IsEnabled, CreatedAt, UpdatedAt) VALUES
 ('805', '腦出/缺血(中風)', true, NOW(), NOW()),
 ('806', '巴金森氏症', true, NOW(), NOW()),
 ('899', '其他', true, NOW(), NOW());
+
+

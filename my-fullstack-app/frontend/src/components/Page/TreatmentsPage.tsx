@@ -85,7 +85,7 @@ const TreatmentsPage: React.FC = () => {
 
     useEffect(() => {
         if (deletedFlag && !loading) {
-            toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已刪除" });
+            toast.current?.show({ severity: "success", summary: "成功", detail: "病患診療紀錄已刪除" });
             setDeletedFlag(false); // 重置
         }
     }, [loading]);
@@ -110,11 +110,11 @@ const TreatmentsPage: React.FC = () => {
         navigate("/patientsdetail");
     };
 
-    const handleDelete = async (Id:string) => {
+    const handleDelete = async (OrdreNo:string) => {
         try {
-            await api.get("/api/doctors/Delete",  {
+            await api.get("/api/doctors/DeleteTreatment",  {
                     params: { 
-                        id: Id
+                        OrdreNo: OrdreNo
                     }
                 }
             );
@@ -146,10 +146,11 @@ const TreatmentsPage: React.FC = () => {
                         label="編輯" 
                         type="button" 
                         icon="pi pi-file-edit" 
-                        onClick={() => navigate(`/treatmentsDetail`, { state: { patient: rowData } })} 
+                        onClick={() => navigate(`/treatmentsDetail`, { state: { treatment: rowData } })} 
                         size="small" 
                         severity="info" 
                         style={{ fontSize: '1rem', margin: '3px' }} 
+                        disabled={ rowData.step == 40 ? true : false}
                     />
                     <Button 
                         label="結案" 
@@ -158,15 +159,17 @@ const TreatmentsPage: React.FC = () => {
                         size="small" 
                         severity="success" 
                         style={{ fontSize: '1rem', margin: '3px' }}
+                        disabled={ rowData.step == 40 ? true : false}
                     />
                     <Button 
                         label="刪除" 
                         type="button" 
                         icon="pi pi-file-excel" 
-                        onClick={()=> handleDelete(rowData.id)} 
+                        onClick={()=> handleDelete(rowData.ordreNo)} 
                         size="small" 
                         severity="danger" 
                         style={{  fontSize: '1rem', margin: '3px' }} 
+                        disabled={ rowData.step == 40 ? true : false}
                     />
             </div>
         );

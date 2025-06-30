@@ -17,9 +17,9 @@ interface Patient {
     phone: string;
     address: string;
     birthDate: Date | null;
-    emergencycontact: string,
-    emergencyrelationship: string,
-    emergencyphone: string,
+    emergencyContact: string,
+    emergencyRelationship: string,
+    emergencyPhone: string,
     nationalId: string;
     medicalHistory: string;
     exerciseHabit: string;
@@ -47,9 +47,9 @@ const PatientsDetailPage: React.FC = () => {
         phone: "",
         address: "",
         birthDate: null,
-        emergencycontact: "",
-        emergencyrelationship: "",
-        emergencyphone: "",
+        emergencyContact: "",
+        emergencyRelationship: "",
+        emergencyPhone: "",
         nationalId: "",
         medicalHistory: "",
         exerciseHabit: "",
@@ -65,7 +65,7 @@ const PatientsDetailPage: React.FC = () => {
             });
 
             setSelectedMedicalHistories(
-            patient.medicalHistory?.split(", ") || []
+                patient.medicalHistory?.split(", ") || []
             );
         }
         }, [patient]);
@@ -144,15 +144,15 @@ const PatientsDetailPage: React.FC = () => {
 
                     <div className="col-6 md:col-4">
                         <label>緊急連絡人</label>
-                        <InputText name="emergencycontact" value={formData.emergencycontact} onChange={handleChange} />
+                        <InputText name="emergencyContact" value={formData.emergencyContact} onChange={handleChange} />
                     </div>
                     <div className="col-5 md:col-2">
                         <label>緊急連絡人關係</label>
-                        <InputText name="emergencyrelationship" value={formData.emergencyrelationship} onChange={handleChange} />
+                        <InputText name="emergencyRelationship" value={formData.emergencyRelationship} onChange={handleChange} />
                     </div>
                     <div className="col-6 md:col-4">
                         <label>緊急連絡人電話</label>
-                        <InputText name="emergencyphone" value={formData.emergencyphone} onChange={handleChange} />
+                        <InputText name="emergencyPhone" value={formData.emergencyPhone} onChange={handleChange} />
                     </div>
                 
 

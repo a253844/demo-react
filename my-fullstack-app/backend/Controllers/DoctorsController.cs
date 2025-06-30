@@ -117,6 +117,7 @@ namespace MyApi.Controllers
             treatments = _context.Treatments
                 .Include(t => t.User)
                 .Include(t => t.Patient)
+                .Where(t => t.IsDelete == false)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToList();
 
@@ -155,11 +156,27 @@ namespace MyApi.Controllers
                 NationalId = t.Patient.NationalId,
                 PatientName = t.Patient.FullName,
                 PatientGender = t.Patient.Gender,
+                Id = t.Id,
                 OrdreNo = t.OrdreNo,
                 Step = t.Step,
+                FrontAndBack = t.FrontAndBack,
+                DiscomfortArea = t.DiscomfortArea,
+                DiscomfortSituation = t.DiscomfortSituation,
+                DiscomfortPeriod = t.DiscomfortPeriod,
+                DiscomfortDegree = t.DiscomfortDegree,
+                PossibleCauses = t.PossibleCauses,
+                TreatmentHistory = t.TreatmentHistory,
+                HowToKnowOur = t.HowToKnowOur,
+                HospitalFormUrl = t.HospitalFormUrl,
+                TreatmentConsentFormUrl = t.TreatmentConsentFormUrl,
+                Subjective = t.Subjective,
+                Objective = t.Objective,
+                Assessment = t.Assessment,
+                Plan = t.Plan,
                 CreatedAt = t.CreatedAt,
                 UpdatedAt = t.UpdatedAt,
-                OptionUserId = t.OptionUserId
+                IsDelete = t.IsDelete,
+                OptionUserId = t.OptionUserId,
             }).ToList();
 
             return Ok(result);
@@ -173,7 +190,7 @@ namespace MyApi.Controllers
                 var userId = User.FindFirst("UserId");
 
                 var treatments = _context.Treatments
-                .Where(p => p.PatientId == data.PatientId)
+                .Where(p => p.PatientId == data.PatientId && p.IsDelete == false)
                 .ToList();
 
                 if (treatments.Count > 0)
@@ -194,7 +211,13 @@ namespace MyApi.Controllers
                 _context.Treatments.Add(data);
                 _context.SaveChanges();
 
-                return Ok("治療案件已新增");
+                var result = new
+                {
+                    Msg = "治療案件已新增",
+                    OrdreNo = data.OrdreNo
+                };
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -203,7 +226,7 @@ namespace MyApi.Controllers
 
         }
 
-        [HttpPut("Update")]
+        [HttpPut("UpdateTreatment")]
         public IActionResult UpdateTreatment([FromBody] Treatment data)
         {
             var userId = User.FindFirst("UserId");
@@ -238,8 +261,8 @@ namespace MyApi.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager,User")]
-        [HttpGet("Delete")]
-        public IActionResult Delete([FromQuery] string OrdreNo)
+        [HttpGet("DeleteTreatment")]
+        public IActionResult DeleteTreatment([FromQuery] string OrdreNo)
         {
             var userId = User.FindFirst("UserId");
 
@@ -269,7 +292,7 @@ namespace MyApi.Controllers
             treatments = _context.Treatments
                 .Include(t => t.User)
                 .Include(t => t.Patient)
-                .Where(t => t.Step != TreatmentStep.CaseClose && t.Patient.NationalId == nationalId)
+                .Where(t => t.Step != TreatmentStep.CaseClose && t.Patient.NationalId == nationalId && t.IsDelete == false)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToList();
 

@@ -43,17 +43,17 @@ namespace MyApi.Data
                 .HasConversion<string>();
 
             modelBuilder.Entity<Treatment>()
-                .HasKey(ur => new { ur.UserId, ur.PatientId });
+                .HasKey(t => t.Id); 
 
             modelBuilder.Entity<Treatment>()
-                .HasOne(ur => ur.User)
+                .HasOne(t => t.User)
                 .WithMany(u => u.Treatments)
-                .HasForeignKey(ur => ur.UserId);
+                .HasForeignKey(t => t.UserId);
 
             modelBuilder.Entity<Treatment>()
-                .HasOne(ur => ur.Patient)
-                .WithMany(r => r.Treatments)
-                .HasForeignKey(ur => ur.PatientId);
+                .HasOne(t => t.Patient)
+                .WithMany(p => p.Treatments)
+                .HasForeignKey(t => t.PatientId);
 
         }
 
