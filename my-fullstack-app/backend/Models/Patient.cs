@@ -26,5 +26,6 @@ namespace MyApi.Models
         public int OptionUserId { get; set; }
 
         public List<Treatment> Treatments { get; set; } = new();
+        public List<Receipt> Receipts { get; set; } = new();
     }
 }

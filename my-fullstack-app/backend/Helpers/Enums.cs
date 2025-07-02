@@ -16,6 +16,7 @@
             Treatment = 20,
             FormUpload = 30,
             CaseClose = 40,
+            CreateReceipt = 50,
 
         }
     }

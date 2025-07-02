@@ -15,6 +15,7 @@ namespace MyApi.Data
         public DbSet<MenuGroup> MenuGroups => Set<MenuGroup>();
         public DbSet<Patient> Patients => Set<Patient>();
         public DbSet<Treatment> Treatments => Set<Treatment>();
+        public DbSet<Receipt> Receipts => Set<Receipt>();
         public DbSet<DataType> DataTypes => Set<DataType>();
         public DbSet<DataTypeGroup> DataTypeGroups => Set<DataTypeGroup>();
 
@@ -53,6 +54,19 @@ namespace MyApi.Data
             modelBuilder.Entity<Treatment>()
                 .HasOne(t => t.Patient)
                 .WithMany(p => p.Treatments)
+                .HasForeignKey(t => t.PatientId);
+
+            modelBuilder.Entity<Receipt>()
+                .HasKey(t => t.Id);
+
+            modelBuilder.Entity<Receipt>()
+                .HasOne(t => t.Treatment)
+                .WithMany(u => u.Receipts)
+                .HasForeignKey(t => t.TreatmentId);
+
+            modelBuilder.Entity<Receipt>()
+                .HasOne(t => t.Patient)
+                .WithMany(p => p.Receipts)
                 .HasForeignKey(t => t.PatientId);
 
         }

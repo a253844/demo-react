@@ -41,7 +41,7 @@ export default function useTreatment(
   useEffect(() => {
     const fetchTreatments = async () => {
       setLoading(true);
-      api.get<TreatmentItem[]>("/api/doctors/GetTreatmentList", {
+      api.get<TreatmentItem[]>("/api/treatment/GetList", {
         params: {
           patientname: patientname,
           nationalId: nationalId,

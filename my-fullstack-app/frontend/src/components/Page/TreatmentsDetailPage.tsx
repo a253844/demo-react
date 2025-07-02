@@ -141,7 +141,10 @@ const TreatmentsDetailPage: React.FC = () => {
 
   const handleSubmit = async (step:number) => {
 
+    var detail = "治療資料已更新";
+
     if(step == 40){
+      detail = "治療完成已結案"
       if(formData.hospitalFormUrl == '' && formData.treatmentConsentFormUrl == ''){
         toast.current?.show({ severity: "error", summary: "結案失敗", detail: "請上傳治療同意書或醫院診斷書"})
         return
@@ -150,7 +153,7 @@ const TreatmentsDetailPage: React.FC = () => {
 
     if (formData.ordreNo === "") {
         // 新增模式
-        await api.post("/api/doctors/InsertTreatment", formData)
+        await api.post("/api/treatment/Insert", formData)
         .then((res) => {
           setFormData(
             (prev) => ({...prev,ordreNo: res.data.ordreNo})
@@ -160,9 +163,12 @@ const TreatmentsDetailPage: React.FC = () => {
     }
     else{
       // 編輯模式
-      formData.step = step;
-      await api.put("/api/doctors/UpdateTreatment", formData)
-        .then((res) => toast.current?.show({ severity: "success", summary: "成功", detail: "治療資料已更新" }) )
+      formData.step = formData.step > step ? formData.step : step;
+      setFormData(
+            (prev) => ({...prev,step: formData.step})
+          ); 
+      await api.put("/api/treatment/Update", formData)
+        .then((res) => toast.current?.show({ severity: "success", summary: "成功", detail: detail }) )
         .catch((err) => toast.current?.show({ severity: "error", summary: "更新失敗", detail: err.response.data}) );  
     }
 

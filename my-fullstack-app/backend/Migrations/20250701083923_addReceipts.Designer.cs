@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyApi.Data;
 
@@ -11,9 +12,11 @@ using MyApi.Data;
 namespace MyApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701083923_addReceipts")]
+    partial class addReceipts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,8 +256,8 @@ namespace MyApi.Migrations
                     b.Property<string>("TreatmentItem")
                         .HasColumnType("longtext");
 
-                    b.Property<double>("TreatmentMoney")
-                        .HasColumnType("double");
+                    b.Property<string>("TreatmentMoney")
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -350,9 +353,6 @@ namespace MyApi.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("PossibleCauses")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ReceiptUrl")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Step")

@@ -72,7 +72,7 @@ const PatientsPage: React.FC = () => {
     }
 
     const NewCase = async (rowData: any) => {
-        await api.get("/api/doctors/GetCaseStatus",  {
+        await api.get("/api/treatment/GetCaseStatus",  {
                 params: { 
                     nationalId: rowData.nationalId
                 }

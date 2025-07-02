@@ -1,11 +1,58 @@
 {
   "Version": 1,
-  "Hash": "lz3V7MICChVTha4Wu2HmNJu8vg7UhsoN4/IWoYwrb24=",
+  "Hash": "6Ue/1mi9sknT4T/pYhU4Vszv2GaTswmFdpoxPg/7OMA=",
   "Source": "MyApi",
   "BasePath": "_content/MyApi",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
+  "DiscoveryPatterns": [
+    {
+      "Name": "MyApi\\wwwroot",
+      "Source": "MyApi",
+      "ContentRoot": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\wwwroot\\",
+      "BasePath": "_content/MyApi",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\wwwroot\\receipt_20250702001_20250702.pdf",
+      "SourceId": "MyApi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\wwwroot\\",
+      "BasePath": "_content/MyApi",
+      "RelativePath": "receipt_20250702001_20250702.pdf",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\receipt_20250702001_20250702.pdf"
+    },
+    {
+      "Identity": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\wwwroot\\receipt_20250702002_20250702.pdf",
+      "SourceId": "MyApi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\wwwroot\\",
+      "BasePath": "_content/MyApi",
+      "RelativePath": "receipt_20250702002_20250702.pdf",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\receipt_20250702002_20250702.pdf"
+    }
+  ]
 }

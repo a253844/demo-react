@@ -65,6 +65,8 @@ const TreatmentsPage: React.FC = () => {
             case '40':
                 return 'success';
 
+            case '50':
+                return null;
             case 'renewal':
                 return null;
         }
@@ -80,7 +82,8 @@ const TreatmentsPage: React.FC = () => {
         "10": "新案",
         "20": "治療",
         "30": "上傳",
-        "40": "結案"
+        "40": "結案",
+        "50": "收據"
     };
 
     useEffect(() => {
@@ -106,13 +109,9 @@ const TreatmentsPage: React.FC = () => {
         setSearchParams({ name, nationalId, doctortId, starttime, endtime, refreshKey});
     };
 
-    const handleAddClick = () => {
-        navigate("/patientsdetail");
-    };
-
     const handleDelete = async (OrdreNo:string) => {
         try {
-            await api.get("/api/doctors/DeleteTreatment",  {
+            await api.get("/api/treatment/Delete",  {
                     params: { 
                         OrdreNo: OrdreNo
                     }
@@ -150,16 +149,16 @@ const TreatmentsPage: React.FC = () => {
                         size="small" 
                         severity="info" 
                         style={{ fontSize: '1rem', margin: '3px' }} 
-                        disabled={ rowData.step == 40 ? true : false}
                     />
                     <Button 
-                        label="結案" 
+                        label="收據" 
                         type="button" 
                         icon="pi pi-clipboard" 
+                        onClick={() => navigate(`/receiptsDetail`, { state: { treatment: rowData } })} 
                         size="small" 
                         severity="success" 
                         style={{ fontSize: '1rem', margin: '3px' }}
-                        disabled={ rowData.step == 40 ? true : false}
+                        disabled={ rowData.step == 40 || rowData.step == 50 ? false : true}
                     />
                     <Button 
                         label="刪除" 
@@ -169,7 +168,7 @@ const TreatmentsPage: React.FC = () => {
                         size="small" 
                         severity="danger" 
                         style={{  fontSize: '1rem', margin: '3px' }} 
-                        disabled={ rowData.step == 40 ? true : false}
+                        disabled={ rowData.step == 40 || rowData.step == 50 ? true : false}
                     />
             </div>
         );
@@ -224,6 +223,7 @@ const TreatmentsPage: React.FC = () => {
                         onChange={(e: DropdownChangeEvent) =>  setDoctortId(e.value)} 
                         options={userOptions} 
                         optionLabel="name" 
+                        optionValue="code"
                         placeholder="醫師選單" />
                 </div>
                 <div className="col-6 md:col-2">

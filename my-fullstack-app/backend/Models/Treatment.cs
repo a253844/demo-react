@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using static MyApi.Helpers.Enums;
 
 namespace MyApi.Models
@@ -22,6 +23,7 @@ namespace MyApi.Models
         public string Objective { get; set; }
         public string Assessment { get; set; }
         public string Plan { get; set; }
+        public string ReceiptUrl { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public Boolean IsDelete { get; set; } = false;
@@ -31,6 +33,8 @@ namespace MyApi.Models
         public User User { get; set; } = null!;
         public int PatientId { get; set; }
         public Patient Patient { get; set; } = null!;
+
+        public List<Receipt> Receipts { get; set; } = new();
 
     }
 }

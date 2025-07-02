@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-export default class Treatment_Costs extends Component {  
+export default class ReceiptsPage extends Component {  
   constructor(){
     super()
 

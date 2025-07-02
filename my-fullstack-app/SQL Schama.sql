@@ -82,4 +82,7 @@ INSERT INTO DataTypes (Number, Name, IsEnabled, CreatedAt, UpdatedAt) VALUES
 ('806', '巴金森氏症', true, NOW(), NOW()),
 ('899', '其他', true, NOW(), NOW());
 
-
+('899', '物理治療評估', true, NOW(), NOW());
+('899', '筋膜鬆動術', true, NOW(), NOW());
+('899', '關節鬆動術', true, NOW(), NOW());
+('899', '運動治療', true, NOW(), NOW());
