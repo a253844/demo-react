@@ -8,6 +8,7 @@ import { InputText } from 'primereact/inputtext';
 import { Toolbar } from 'primereact/toolbar';
 import { Toast } from 'primereact/toast';
 import api from "../../services/api"; 
+import connection  from "../../services/signalr"; 
 import { InputNumber } from 'primereact/inputnumber';
 
 interface Receipt {
@@ -37,10 +38,34 @@ const ReceiptsDetailPage: React.FC = () => {
   const toast = useRef<Toast>(null);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
 
+    const [progress, setProgress] = useState(0);
+  const [message, setMessage] = useState("");
+
   const treatmentItemsUsed = receipts.map(r => r.treatmentItem);
 
   useEffect(() => {
     loadReceipts();
+
+    connection
+    .start()
+    .then(() => {
+      console.log("已連線至 SignalR");
+      console.log("連線 ID", connection.connectionId);
+    })
+    .catch(err => console.error("SignalR 連線失敗:", err));
+
+  connection.on("ReportProgress", (value) => {
+    setProgress(value);
+  });
+
+  connection.on("ReportFinished", (msg) => {
+    setMessage(msg);
+  });
+
+  return () => {
+    connection.stop();
+  };
+
   }, []);
 
   const loadReceipts = async () => {
@@ -64,10 +89,9 @@ const ReceiptsDetailPage: React.FC = () => {
     const now = new Date();
 
     const minute = String(now.getMinutes()).padStart(2, '0');    // 取得分 (0~59)
-    const second = Math.floor(now.getSeconds() / 10) * 10;       // 取十秒位 (0, 10, 20, ..., 50)
-    const tenSecond = String(second).padStart(2, '0');
+    const second = String(now.getTime()).substr(8)
 
-    return Number(`${minute}${second}${tenSecond}`);
+    return Number(`${minute}${second}`);
   }
 
   const addRow = () => {
@@ -125,9 +149,10 @@ const ReceiptsDetailPage: React.FC = () => {
           const response = await api.get("/api/receipt/ExportReceiptsPdf", {
             params: { 
               TreatmentId: treatment.id,
-              OrdreNo: ordreNo
+              OrdreNo: ordreNo,
+              connectionId: connection.connectionId
             },
-            responseType: 'blob'  // 這裡很重要，要告訴 axios 以 blob 格式取得資料
+            responseType: 'blob'  // blob 格式取得資料
           });
           
           toast.current?.show({ severity: "success", summary: "成功", detail: "收據製作成功"});
@@ -154,26 +179,55 @@ const ReceiptsDetailPage: React.FC = () => {
   };
 
   const toolbar = (
-    <Toolbar
-      start={
-        <div className="flex gap-2 align-items-end">
-          <Dropdown
-            value={treatmentItem}
-            options={treatmentOptions.filter(o => !treatmentItemsUsed.includes(o.value))}
-            onChange={(e) => setTreatmentItem(e.value)}
-            placeholder="選擇項目"
-          />
-          <InputNumber 
-            value={treatmentMoney}
-            onValueChange={(e) => setTreatmentMoney(Number(e.target.value))}
-            placeholder="金額"
-          />
-          <Button label="新增" icon="pi pi-plus" onClick={addRow} disabled={receipts.length >= 5} />
-          <Button label="儲存" icon="pi pi-save" severity="success" onClick={saveToServer} />
-          <Button label="開立收據" icon="pi pi-file-pdf" severity="secondary" onClick={exportToPDF} /> 
+        <div className="card flex flex-wrap p-fluid">
+          <div className="col-6 md:col-2">
+            <div className="flex-auto">
+              <label className="font-bold block mb-2">治療項目</label>
+              <Dropdown
+                value={treatmentItem}
+                options={treatmentOptions.filter(o => !treatmentItemsUsed.includes(o.value))}
+                onChange={(e) => setTreatmentItem(e.value)}
+                placeholder="請選擇"
+              />
+            </div>
+          </div>
+          <div className="col-5 md:col-2">
+            <div className="flex-auto">
+              <label htmlFor="mile" className="font-bold block mb-2">金額</label>
+              <InputNumber 
+                value={treatmentMoney}
+                onValueChange={(e) => setTreatmentMoney(Number(e.target.value))}
+                
+              />
+            </div>
+          </div>
+          <div className=" flex flex-wrap col-11 md:col-5">
+            <div className="flex col-4 md:col-2">
+              <div className="flex-auto">
+                <label className="font-bold block mb-2"> </label>
+                <Button label="新增" icon="pi pi-plus" onClick={addRow} disabled={receipts.length >= 5} />
+              </div>
+            </div>
+            <div className="flex col-4 md:col-2">
+              <div className="flex-auto">
+                <label className="font-bold block mb-2"> </label>
+                <Button label="儲存" icon="pi pi-save" severity="success" onClick={saveToServer} />
+              </div>
+            </div>
+            <div className="flex col-5 md:col-3">
+              <div className="flex-auto">
+                <label className="font-bold block mb-2"> </label>
+                <Button label="開立收據" icon="pi pi-file-pdf" severity="secondary" onClick={exportToPDF} /> 
+              </div>
+            </div>
+            <div className="flex col-5 md:col-2">
+              <div className="flex-auto">
+                <label className="font-bold block mb-2">表產生進度</label>
+                <progress value={progress} max="100" style={{ width: '100%' }} />
+              </div>
+            </div>
+          </div>
         </div>
-      }
-    />
   );
 
 return (

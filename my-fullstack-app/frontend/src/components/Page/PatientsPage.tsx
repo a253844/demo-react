@@ -151,8 +151,8 @@ const PatientsPage: React.FC = () => {
     return (
         <div>
             <Toast ref={toast} />
-            <div className="card flex flex-wrap gap-3 p-fluid">
-                <div className="col-8 md:col-2">
+            <div className="card flex flex-wrap p-fluid">
+                <div className="col-7 md:col-2">
                     <InputText
                         id="name"
                         type="text"
@@ -161,24 +161,22 @@ const PatientsPage: React.FC = () => {
                         placeholder="病患姓名"
                     />
                 </div>
-                <div className="col-8 md:col-2">
+                <div className="col-6 md:col-2">
                     <Calendar 
                         id="starttime" 
                         value={starttime} 
                         onChange={(e) => setStarttime(e.value)} 
                         placeholder="開始時間"
-                        showTime 
-                        hourFormat="24" 
+                        dateFormat="yy/mm/dd" 
                         showIcon/>
                 </div>
-                <div className="col-8 md:col-2">
+                <div className="col-6 md:col-2">
                     <Calendar 
                         id="endtime" 
                         value={endtime} 
                         onChange={(e) => setEndtime(e.value)} 
                         placeholder="結束時間"
-                        showTime 
-                        hourFormat="24" 
+                        dateFormat="yy/mm/dd"  
                         showIcon/>
                 </div>
                 <div className="col-4 md:col-1">

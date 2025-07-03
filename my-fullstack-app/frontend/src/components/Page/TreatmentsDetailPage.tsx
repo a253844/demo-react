@@ -238,13 +238,13 @@ const TreatmentsDetailPage: React.FC = () => {
               <div className="flex flex-column">
                 <div className="grid formgrid p-fluid gap-3 justify-content-center">
 
-                  <div className="col-5 md:col-5" >
+                  <div className="col-5 md:col-5" hidden>
                     <label>patientId</label>
                     <div className="flex flex-wrap gap-3">
                       <InputTextarea  name="patientId" rows={1} value={formData.patientId?.toString()} onChange={handleChange} />
                     </div>
                   </div>
-                  <div className="col-5 md:col-5" >
+                  <div className="col-5 md:col-5" hidden>
                     <label>ordreNo</label>
                     <div className="flex flex-wrap gap-3">
                       <InputTextarea  name="ordreNo" rows={1} value={formData.ordreNo?.toString()} onChange={handleChange} />

@@ -13,6 +13,11 @@ using static MyApi.Helpers.Enums;
 using System.Collections.Generic;
 using EntityFramework.Extensions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Diagnostics;
+using Microsoft.AspNetCore.SignalR;
+using MyApi.Helpers;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace MyApi.Controllers
 {
@@ -22,10 +27,14 @@ namespace MyApi.Controllers
     {
         private readonly AppDbContext _context;
         private readonly string _reportPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        private readonly IHubContext<ReportHub> _hub;
+        private readonly IConfiguration _configuration;
 
-        public ReceiptController(AppDbContext context)
+        public ReceiptController(AppDbContext context, IHubContext<ReportHub> hub, IConfiguration configuration)
         {
             _context = context;
+            _hub = hub;
+            _configuration = configuration;
         }
 
         [HttpGet("GetList")]
@@ -185,65 +194,113 @@ namespace MyApi.Controllers
             return Ok("治療案件已更新");
         }
 
-
         [HttpGet("ExportReceiptsPdf")]
-        public IActionResult ExportReceiptsPdf([FromQuery] int TreatmentId, string OrdreNo)
+        public async Task<IActionResult> ExportReceiptsPdf([FromQuery] int TreatmentId, string OrdreNo, string connectionId, [FromServices] IHubContext<ReportHub> hub)
         {
+
             if (!Directory.Exists(_reportPath))
                 Directory.CreateDirectory(_reportPath);
 
             if (string.IsNullOrEmpty(OrdreNo))
-            {
                 return BadRequest("未找到收據編號，請先進行存擋");
-            }
 
             var receipts = _context.Receipts
-                .Where(p => p.TreatmentId == TreatmentId &&
-                            p.OrdreNo == OrdreNo)
+                .Where(p => p.TreatmentId == TreatmentId && p.OrdreNo == OrdreNo)
                 .ToList();
 
             if (receipts.Count == 0)
-            {
                 return BadRequest("此案件收據無資料");
-            }
 
             var treatments = _context.Treatments
-                .Where(p => p.Id == TreatmentId &&
-                            p.IsDelete == false)
+                .Where(p => p.Id == TreatmentId && !p.IsDelete)
                 .ToList();
 
-            if (receipts.Count == 0)
-            {
+            if (treatments.Count == 0)
                 return BadRequest("未找到案件資料");
-            }
+
+            await hub.Clients.Client(connectionId).SendAsync("ReportProgress", 5);
 
             var patients = _context.Patients
-                .Where(p => p.Id == receipts.First().PatientId &&
-                            p.IsDelete == false)
+                .Where(p => p.Id == receipts.First().PatientId && !p.IsDelete)
                 .ToList();
 
-            var fileNo = string.Empty;
+            if (treatments.Count == 0)
+                return BadRequest("未找到病患資料");
+
             var filePath = string.Empty;
+
+            await hub.Clients.Client(connectionId).SendAsync("ReportProgress", 20);
 
             if (string.IsNullOrEmpty(treatments.First().ReceiptUrl))
             {
-                fileNo = $"receipt_{OrdreNo}_{DateTime.Now.ToString("yyyyMMdd")}.pdf";
 
-                filePath = Path.Combine(_reportPath, fileNo);
+                var fileNo = $"receipt_{OrdreNo}_{DateTime.Now:yyyyMMdd}";
+                filePath = Path.Combine(_reportPath, $"{fileNo}.pdf" );
+
+                await hub.Clients.Client(connectionId).SendAsync("ReportProgress", 40);
+
+                // 製作收據 PDF
                 ExportReceiptToPdf(receipts, patients, filePath);
 
-                treatments.First().ReceiptUrl = fileNo;
+                await hub.Clients.Client(connectionId).SendAsync("ReportProgress", 60);
+
+                // 壓縮 PDF
+                var compressPath = Path.Combine(_reportPath, $"{fileNo}_Compressed.pdf");
+                CompressPdf(filePath, compressPath);
+
+                await hub.Clients.Client(connectionId).SendAsync("ReportProgress", 80);
+
+                // 刪除未壓縮 PDF
+                System.IO.File.Delete(filePath);
+
+                treatments.First().ReceiptUrl = Path.GetFileName(compressPath);
+                filePath = compressPath;
             }
             else
             {
-                fileNo = treatments.First().ReceiptUrl;
-                filePath = Path.Combine(_reportPath, fileNo);
+                filePath = Path.Combine(_reportPath, treatments.First().ReceiptUrl);
+
+                await hub.Clients.Client(connectionId).SendAsync("ReportProgress", 80);
             }
 
             _context.SaveChanges();
 
+            await hub.Clients.Client(connectionId).SendAsync("ReportProgress", 100);
+            await hub.Clients.Client(connectionId).SendAsync("ReportFinished", "報表已完成");
+
             var fileBytes = System.IO.File.ReadAllBytes(filePath);
             return File(fileBytes, "application/pdf", "patients_report.pdf");
+        }
+
+        /// <summary>
+        /// 壓縮PDF
+        /// </summary>
+        /// <param name="inputPath"></param>
+        /// <param name="outputPath"></param>
+        private void CompressPdf(string inputPath, string outputPath)
+        {
+            var FileName = "gs";
+
+            string DebugMode = _configuration["WebSitSettings:DebugMode"];
+            if (DebugMode == "true")
+            {
+                FileName = @"C:\Program Files\gs\gs10.05.1\bin\gswin64c.exe";
+            }
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = FileName,
+                Arguments = $"-sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook " +
+                            "-dNOPAUSE -dQUIET -dBATCH " +
+                            $"-sOutputFile=\"{outputPath}\" \"{inputPath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = Process.Start(psi);
+            process.WaitForExit();
         }
 
         /// <summary>

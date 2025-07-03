@@ -72,7 +72,7 @@ const Layout: React.FC<LayoutProps> = ({ MenuGroup }) => {
 
   const HeaderEndItems = (
     <div className="flex align-items-center gap-2">
-      <label className="font-bold block mb-2">醫生您好</label>
+      <label className="font-bold block mb-2">治療師您好</label>
       <Button
         icon="pi pi-sign-out"
         label="登出"
