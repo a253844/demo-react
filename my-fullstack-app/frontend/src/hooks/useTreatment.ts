@@ -23,6 +23,7 @@ export interface TreatmentItem {
   UpdatedAt: string;
   IsDelete: boolean;
   OptionUserId: number;
+  ReceiptUrl: string;
   UserId: number;
   PatientId: number;
 }

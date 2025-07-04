@@ -13,6 +13,7 @@ import api from "../../services/api";
 import { Toast } from "primereact/toast";
 import { Tag } from 'primereact/tag';
 import { format } from "date-fns";
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 
 interface OptionItem {
   code: number;
@@ -85,14 +86,7 @@ const TreatmentsPage: React.FC = () => {
         "40": "結案",
         "50": "收據"
     };
-
-    useEffect(() => {
-        if (deletedFlag && !loading) {
-            toast.current?.show({ severity: "success", summary: "成功", detail: "病患診療紀錄已刪除" });
-            setDeletedFlag(false); // 重置
-        }
-    }, [loading]);
-
+    
     useEffect(() => {
         if (!Roleloading && userRole.length > 0) {
              console.log("userRole =", userRole);
@@ -102,7 +96,12 @@ const TreatmentsPage: React.FC = () => {
             }));
             setUserOptions(simplified);
         }
-    }, [Roleloading, userRole]);
+
+        if (deletedFlag && !loading) {
+            toast.current?.show({ severity: "success", summary: "成功", detail: "病患診療紀錄已刪除" });
+            setDeletedFlag(false); // 重置
+        }
+    }, [Roleloading, userRole, loading]);
 
     const handleSearchClick = () => {
         setRefreshKey(refreshKey + 1)
@@ -164,7 +163,7 @@ const TreatmentsPage: React.FC = () => {
                         label="刪除" 
                         type="button" 
                         icon="pi pi-file-excel" 
-                        onClick={()=> handleDelete(rowData.ordreNo)} 
+                        onClick={()=> confirm(rowData.ordreNo)} 
                         size="small" 
                         severity="danger" 
                         style={{  fontSize: '1rem', margin: '3px' }} 
@@ -173,6 +172,20 @@ const TreatmentsPage: React.FC = () => {
             </div>
         );
     };
+
+    const confirm = (Id:string) => {
+        confirmDialog({
+            message: '確定要刪除這筆資料嗎？',
+            header: '刪除確認',
+            icon: 'pi pi-exclamation-triangle',
+            defaultFocus: 'reject',
+            acceptClassName: 'p-button-danger',
+            acceptLabel: '確定',
+            rejectLabel: '取消',
+            accept: () => handleDelete(Id),
+        });
+    };
+
     const stepBodyTemplate = (rowData: any) => {
         return (
             <div>
@@ -194,7 +207,25 @@ const TreatmentsPage: React.FC = () => {
     const formatDate = (value: string) => {
         if (!value) return "";
         const date = new Date(value);
-        return format(new Date("2025-06-25T15:59:35"), "yyyy/MM/dd HH:mm:ss");
+        return format(date, "yyyy/MM/dd HH:mm:ss");
+    };
+
+    const formatAge = (value: string) => {
+        if (!value) return "";
+        const date = new Date(value);
+        const today = new Date();
+        let age = today.getFullYear() - date.getFullYear();
+
+        const hasNotHadBirthdayThisYear =
+            today.getMonth() < date.getMonth() ||
+            (today.getMonth() === date.getMonth() && today.getDate() < date.getDate());
+
+        if (hasNotHadBirthdayThisYear) {
+            age--;
+        }
+
+        return age;
+        
     };
 
     if (loading) {
@@ -208,6 +239,7 @@ const TreatmentsPage: React.FC = () => {
     return (
         <div>
             <Toast ref={toast} />
+            <ConfirmDialog />
             <div className="card flex flex-wrap p-fluid">
                 <div className="col-7 md:col-2">
                     <InputText
@@ -228,9 +260,9 @@ const TreatmentsPage: React.FC = () => {
                 </div>
                 <div className="col-7 md:col-2">
                     <InputText
-                        id="name"
+                        id="nationalId"
                         type="text"
-                        value={name}
+                        value={nationalId}
                         onChange={(e) => setNationalId(e.target.value)}
                         placeholder="病患身分證" />
                 </div>
@@ -271,10 +303,10 @@ const TreatmentsPage: React.FC = () => {
                       <Column field="patientName" header="病患姓名" style={{ width: '5%' }} />
                       <Column field="doctorName" header="治療醫師" style={{ width: '5%' }} />
                       <Column field="patientGender" header="性別" style={{ width: '3%' }} body={genderBodyTemplate}/>
-                      <Column field="patientGender" header="年齡" style={{ width: '3%' }} />
+                      <Column field="patientBirthDate" header="年齡" style={{ width: '3%' }}  body={(rowData) => formatAge(rowData.patientBirthDate)}/>
                       <Column field="step" header="階段" style={{ width: '3%' }} body={stepBodyTemplate}/>
                       <Column field="createdAt" header="新增日期" style={{ width: '8%' }} body={(rowData) => formatDate(rowData.createdAt)} />
-                      <Column field="updatedAt" header="更新日期" style={{ width: '8%' }} body={(rowData) => formatDate(rowData.createdAt)}/>
+                      <Column field="updatedAt" header="更新日期" style={{ width: '8%' }} body={(rowData) => formatDate(rowData.updatedAt)}/>
                       <Column field="optionUserId" header="操作人" style={{ width: '5%' }} />
                       <Column field="option" header="功能" style={{ width: '12%' }} body={optionBodyTemplate} />
                     </DataTable>

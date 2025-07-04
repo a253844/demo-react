@@ -69,6 +69,7 @@ namespace MyApi.Controllers
                 NationalId = t.Patient.NationalId,
                 PatientName = t.Patient.FullName,
                 PatientGender = t.Patient.Gender,
+                PatientBirthDate = t.Patient.BirthDate,
                 Id = t.Id,
                 OrdreNo = t.OrdreNo,
                 Step = t.Step,
@@ -90,6 +91,7 @@ namespace MyApi.Controllers
                 UpdatedAt = t.UpdatedAt,
                 IsDelete = t.IsDelete,
                 OptionUserId = t.OptionUserId,
+                ReceiptUrl = t.ReceiptUrl
             }).ToList();
 
             return Ok(result);

@@ -10,6 +10,7 @@ import { useRef, useEffect  } from "react";
 import api from "../../services/api"; 
 import useDataType from '../../hooks/useDataType';
 import { Checkbox, CheckboxChangeEvent  } from "primereact/checkbox";
+import { da } from "@fullcalendar/core/internal-common";
 
 interface Patient {
     fullName: string;
@@ -80,14 +81,21 @@ const PatientsDetailPage: React.FC = () => {
     };
 
     const handleSubmit = async () => {
+
+        const dataToSend = {
+            ...formData,
+            birthDate: formData.birthDate ? toLocalIsoString(formData.birthDate) : null
+        };
+
+
         if (patient) {
             // 編輯模式
-            await api.put(`/api/patients/Update/`, formData)
+            await api.put(`/api/patients/Update/`, dataToSend)
             .then((res) => toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已更新" }) )
             .catch((err) => toast.current?.show({ severity: "error", summary: "更新失敗", detail: err.response.data}) );
         } else {
             // 新增模式
-            await api.post("/api/patients/Insert", formData)
+            await api.post("/api/patients/Insert", dataToSend)
             .then((res) => toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已新增" }) )
             .catch((err) => toast.current?.show({ severity: "error", summary: "新增失敗", detail: err.response.data}) );
         }
@@ -105,7 +113,21 @@ const PatientsDetailPage: React.FC = () => {
         setFormData(prev => ({ ...prev, medicalHistory: updated.join(", ") }));
     };
 
-      if (loading) return <p>Loading...</p>;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    const toLocalIsoString = (date: Date) => {
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        const seconds = pad(date.getSeconds());
+
+        // 👉 沒有 'Z' 結尾，表示是本地時間
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    };
+
+    if (loading) return <p>Loading...</p>;
 
     return (
         <div className="p-4">

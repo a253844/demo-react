@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.SignalR;
 using MyApi.Helpers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using static SkiaSharp.HarfBuzz.SKShaper;
 
 namespace MyApi.Controllers
 {
@@ -37,8 +39,8 @@ namespace MyApi.Controllers
             _configuration = configuration;
         }
 
-        [HttpGet("GetList")]
-        public IActionResult GetList([FromQuery] int treatmentId)
+        [HttpGet("Get")]
+        public IActionResult Get([FromQuery] int treatmentId)
         {
             var receipts = _context.Receipts
                     .Where(p => p.TreatmentId == treatmentId &&
@@ -47,6 +49,57 @@ namespace MyApi.Controllers
 
 
             return Ok(receipts);
+        }
+
+        [HttpGet("GetList")]
+        public IActionResult GetList([FromQuery] string patientname, string? nationalId, TreatmentStep? step, DateTime? starttime, DateTime? endtime)
+        {
+            var treatments = _context.Receipts
+                .Include(t => t.Patient)
+                .Include(t => t.Treatment)
+                .Where(p => !string.IsNullOrEmpty(p.Treatment.ReceiptUrl))
+                .OrderByDescending(p => p.CreatedAt)
+                .ToList();
+
+            if (!string.IsNullOrEmpty(patientname))
+            {
+                treatments = treatments.Where(p => p.Patient.FullName.Contains(patientname))
+                .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(nationalId))
+            {
+                treatments = treatments.Where(p => p.Patient.NationalId == nationalId).ToList();
+            }
+
+            if (starttime != null && endtime != null)
+            {
+                treatments = treatments.Where(p => p.CreatedAt >= starttime && p.CreatedAt <= endtime).ToList();
+            }
+
+            var result = treatments.Select(t => new
+            {
+
+                PatientId = t.Patient.Id,
+                NationalId = t.Patient.NationalId,
+                PatientName = t.Patient.FullName,
+                PatientGender = t.Patient.Gender,
+                PatientBirthDate = t.Patient.BirthDate,
+
+                Id = t.Treatment.Id,
+                ordreNo = t.Treatment.OrdreNo,
+                ReceiptUrl = t.Treatment.ReceiptUrl,
+
+                ReceiptOrdreNo = t.OrdreNo,
+                ReceiptCreatedAt = t.CreatedAt,
+                ReceiptUpdatedAt = t.UpdatedAt,
+                ReceiptOptionUserId = t.OptionUserId,
+            })
+            .GroupBy(x => new { x.PatientId, x.ReceiptOrdreNo })
+            .Select(g => g.First())
+            .ToList();
+
+            return Ok(result);
         }
 
         [HttpPost("Insert")]
@@ -92,7 +145,7 @@ namespace MyApi.Controllers
 
                 var OrdreNomber = _context.Receipts
                     .Where(p => p.OrdreNo.Contains(datetimestr))
-                    .OrderBy(p => p.OrdreNo)
+                    .OrderByDescending(p => p.OrdreNo)
                     .Select(p => p.OrdreNo)
                     .Take(1)
                     .ToList();

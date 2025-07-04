@@ -10,6 +10,7 @@ import { Toast } from 'primereact/toast';
 import api from "../../services/api"; 
 import connection  from "../../services/signalr"; 
 import { InputNumber } from 'primereact/inputnumber';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 
 interface Receipt {
   id?: number;
@@ -35,6 +36,7 @@ const ReceiptsDetailPage: React.FC = () => {
   const [treatmentItem, setTreatmentItem] = useState('');
   const [treatmentMoney, setTreatmentMoney] = useState<number>(0);
   const [ordreNo, setOrdreNo] = useState<string>('');
+  const [isFileCreate, setisFileCreate] = useState<boolean>(false);
   const toast = useRef<Toast>(null);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
 
@@ -44,13 +46,15 @@ const ReceiptsDetailPage: React.FC = () => {
   const treatmentItemsUsed = receipts.map(r => r.treatmentItem);
 
   useEffect(() => {
+    setisFileCreate(treatment.receiptUrl? true : false )
+
     loadReceipts();
 
     connection
     .start()
     .then(() => {
       console.log("已連線至 SignalR");
-      console.log("連線 ID", connection.connectionId);
+      //console.log("連線 ID", connection.connectionId);
     })
     .catch(err => console.error("SignalR 連線失敗:", err));
 
@@ -69,8 +73,9 @@ const ReceiptsDetailPage: React.FC = () => {
   }, []);
 
   const loadReceipts = async () => {
+
     try {
-      const res = await api.get('/api/receipt/GetList', {
+      const res = await api.get('/api/receipt/Get', {
         params: {
           treatmentId: treatment.id,
           ordreNo: ordreNo
@@ -122,6 +127,11 @@ const ReceiptsDetailPage: React.FC = () => {
   };
 
   const saveToServer = async () => {
+    if(receipts.length == 0){
+      toast.current?.show({ severity: 'error', summary: '錯誤', detail: "資料請勿少於一筆" });
+      return 
+    }
+
     try {
       if (!ordreNo) {
         // 新增模式
@@ -144,7 +154,11 @@ const ReceiptsDetailPage: React.FC = () => {
   };
 
   const exportToPDF = async () => {
-    console.log('送出到後端', receipts);
+    if(receipts.length == 0){
+      toast.current?.show({ severity: 'error', summary: '錯誤', detail: "資料請勿少於一筆" });
+      return 
+    }
+
     try {
           const response = await api.get("/api/receipt/ExportReceiptsPdf", {
             params: { 
@@ -160,7 +174,7 @@ const ReceiptsDetailPage: React.FC = () => {
           // 產生blob url
           const file = new Blob([response.data], { type: 'application/pdf' });
           const fileURL = URL.createObjectURL(file);
-
+          setisFileCreate(true)
           // 在新分頁開啟PDF
           window.open(fileURL);
         } catch (error) {
@@ -176,6 +190,18 @@ const ReceiptsDetailPage: React.FC = () => {
         onClick={() => deleteRow(rowData)}
       />
     );
+  };
+
+  const confirm = () => {
+      confirmDialog({
+          message: '收據開立後就無法修改內容，確定要開立收據嗎？',
+          header: '收據開立確認',
+          icon: 'pi pi-exclamation-triangle',
+          defaultFocus: 'accept',
+          acceptLabel: '確定',
+          rejectLabel: '取消',
+          accept: () => exportToPDF(),
+      });
   };
 
   const toolbar = (
@@ -214,12 +240,18 @@ const ReceiptsDetailPage: React.FC = () => {
                 <Button label="儲存" icon="pi pi-save" severity="success" onClick={saveToServer} />
               </div>
             </div>
-            <div className="flex col-5 md:col-3">
+            { isFileCreate && (<div className="flex col-5 md:col-3">
               <div className="flex-auto">
                 <label className="font-bold block mb-2"> </label>
-                <Button label="開立收據" icon="pi pi-file-pdf" severity="secondary" onClick={exportToPDF} /> 
+                <Button label="檢視收據" icon="pi pi-file-pdf" severity="secondary" onClick={exportToPDF} /> 
               </div>
-            </div>
+            </div>)}
+            { !isFileCreate && (<div className="flex col-5 md:col-3">
+              <div className="flex-auto">
+                <label className="font-bold block mb-2"> </label>
+                <Button label="開立收據" icon="pi pi-file-pdf" severity="secondary" onClick={confirm} /> 
+              </div>
+            </div>) }
             <div className="flex col-5 md:col-2">
               <div className="flex-auto">
                 <label className="font-bold block mb-2">表產生進度</label>
@@ -233,6 +265,7 @@ const ReceiptsDetailPage: React.FC = () => {
 return (
     <div className="card">
       <Toast ref={toast} />
+      <ConfirmDialog />
       {toolbar}
       <DataTable value={receipts} dataKey="id">
         <Column field="treatmentItem" header="項目" />
