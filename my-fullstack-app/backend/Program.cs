@@ -8,13 +8,21 @@ using MyApi.Service;
 using MyApi.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using MyApi.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionDBName = "DefaultConnection";
 var connectionRedisName = "Redis";
-connectionDBName = "DebugConnection";
-connectionRedisName = "DebugRedis";
+
+var DebugMode = builder.Configuration["WebSitSettings:DebugMode"];
+if (DebugMode == "true")
+{
+    connectionDBName = "DebugConnection";
+    connectionRedisName = "DebugRedis";
+}
 
 #region MySQL 連線
 
@@ -47,7 +55,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:3308", "http://127.0.0.1:3308", "http://localhost:3309", "http://127.0.0.1:3309") // React dev server 
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials(); //SignalR 
     });
 });
 
@@ -76,6 +85,12 @@ builder.Services.AddAuthentication("Bearer")
 
 #endregion
 
+#region SignalR 服務
+
+builder.Services.AddSignalR();
+
+#endregion
+
 var app = builder.Build();
 app.UseCors("AllowAll");
 app.UseRouting();
@@ -85,6 +100,22 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 
+#region 圖片預覽
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    RequestPath = "/uploads"
+});
+
+#endregion
+
+#region 推送訊息
+
+app.MapHub<ReportHub>("/reportHub");
+
+#endregion
 
 using (var scope = app.Services.CreateScope())
 {

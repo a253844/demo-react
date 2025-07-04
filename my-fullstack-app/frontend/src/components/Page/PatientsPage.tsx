@@ -9,6 +9,8 @@ import { Column } from 'primereact/column';
 import { ProgressSpinner } from "primereact/progressspinner";
 import api from "../../services/api"; 
 import { Toast } from "primereact/toast";
+import { format } from "date-fns";
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 
 const PatientsPage: React.FC = () => {
     const navigate = useNavigate();
@@ -27,6 +29,12 @@ const PatientsPage: React.FC = () => {
     });
 
     const { Patients, loading } = usePatient(searchParams.name, searchParams.starttime, searchParams.endtime, refreshKey);
+
+    const genderdict: { [key: string]: string } = {
+        "1": "男性",
+        "2": "女性",
+        "3": "其他"
+    };
 
     useEffect(() => {
         if (deletedFlag && !loading) {
@@ -55,13 +63,23 @@ const PatientsPage: React.FC = () => {
             setDeletedFlag(true);
             Reload();
         } catch (error) {
-            toast.current?.show({ severity: "error", summary: "錯誤", detail: "刪除失敗"});
+            toast.current?.show({ severity: "error", summary: "錯誤", detail: "執行失敗"});
         }
     };
 
     const Reload = () => {
         // 重新觸發 usePatient，等於重新查詢
         setRefreshKey(prev => prev + 1);
+    }
+
+    const NewCase = async (rowData: any) => {
+        await api.get("/api/treatment/GetCaseStatus",  {
+                params: { 
+                    nationalId: rowData.nationalId
+                }
+            }
+        ).then((res) => navigate(`/treatmentsDetail`, { state: { patient: rowData } }))
+        .catch((err) => toast.current?.show({ severity: "error", summary: "開案失敗", detail: err.response.data}) );
     }
 
     const paginatorLeft = (
@@ -73,6 +91,7 @@ const PatientsPage: React.FC = () => {
         />
     );
     const paginatorRight = <Button type="button" icon="pi pi-download" text />;
+
     const optionBodyTemplate = (rowData: any) => {
         return (
             <div>
@@ -89,6 +108,7 @@ const PatientsPage: React.FC = () => {
                         label="開案" 
                         type="button" 
                         icon="pi pi-clipboard" 
+                        onClick={() => NewCase(rowData)} 
                         size="small" 
                         severity="success" 
                         style={{ fontSize: '1rem', margin: '3px' }}
@@ -97,13 +117,60 @@ const PatientsPage: React.FC = () => {
                         label="刪除" 
                         type="button" 
                         icon="pi pi-file-excel" 
-                        onClick={()=> handleDelete(rowData.id)} 
+                        onClick={()=> confirm(rowData.id)} 
                         size="small" 
                         severity="danger" 
                         style={{  fontSize: '1rem', margin: '3px' }} 
                     />
             </div>
         );
+    };
+
+    const confirm = (Id:string) => {
+        confirmDialog({
+            message: '確定要刪除這筆資料嗎？',
+            header: '刪除確認',
+            icon: 'pi pi-exclamation-triangle',
+            defaultFocus: 'reject',
+            acceptClassName: 'p-button-danger',
+            acceptLabel: '確定',
+            rejectLabel: '取消',
+            accept: () => handleDelete(Id),
+        });
+    };
+
+    const genderBodyTemplate = (rowData: any) => {
+        var data = String(rowData.gender)
+        const gendar = genderdict[data]
+        return (
+            <div>
+                {gendar}
+            </div>
+        );
+    };
+
+    const formatDate = (value: string) => {
+        if (!value) return "";
+        const date = new Date(value);
+        return format(date, "yyyy/MM/dd HH:mm:ss");
+    };
+
+    const formatAge = (value: string) => {
+        if (!value) return "";
+        const date = new Date(value);
+        const today = new Date();
+        let age = today.getFullYear() - date.getFullYear();
+
+        const hasNotHadBirthdayThisYear =
+            today.getMonth() < date.getMonth() ||
+            (today.getMonth() === date.getMonth() && today.getDate() < date.getDate());
+
+        if (hasNotHadBirthdayThisYear) {
+            age--;
+        }
+
+        return age;
+        
     };
 
     if (loading) {
@@ -117,8 +184,9 @@ const PatientsPage: React.FC = () => {
     return (
         <div>
             <Toast ref={toast} />
-            <div className="card flex flex-wrap gap-3 p-fluid">
-                <div className="col-8 md:col-2">
+            <ConfirmDialog />
+            <div className="card flex flex-wrap p-fluid">
+                <div className="col-7 md:col-2">
                     <InputText
                         id="name"
                         type="text"
@@ -127,24 +195,22 @@ const PatientsPage: React.FC = () => {
                         placeholder="病患姓名"
                     />
                 </div>
-                <div className="col-8 md:col-2">
+                <div className="col-6 md:col-2">
                     <Calendar 
                         id="starttime" 
                         value={starttime} 
                         onChange={(e) => setStarttime(e.value)} 
                         placeholder="開始時間"
-                        showTime 
-                        hourFormat="24" 
+                        dateFormat="yy/mm/dd" 
                         showIcon/>
                 </div>
-                <div className="col-8 md:col-2">
+                <div className="col-6 md:col-2">
                     <Calendar 
                         id="endtime" 
                         value={endtime} 
                         onChange={(e) => setEndtime(e.value)} 
                         placeholder="結束時間"
-                        showTime 
-                        hourFormat="24" 
+                        dateFormat="yy/mm/dd"  
                         showIcon/>
                 </div>
                 <div className="col-4 md:col-1">
@@ -166,10 +232,10 @@ const PatientsPage: React.FC = () => {
                     >
                       <Column field="id" header="ID" style={{ width: '5%' }} />
                       <Column field="fullName" header="姓名" style={{ width: '10%' }} />
-                      <Column field="gender" header="性別" style={{ width: '5%' }} />
-                      <Column field="gender" header="年齡" style={{ width: '5%' }} />
-                      <Column field="createdAt" header="新增日期" style={{ width: '10%' }} />
-                      <Column field="createdAt" header="更新日期" style={{ width: '10%' }} />
+                      <Column field="gender" header="性別" style={{ width: '5%' }} body={genderBodyTemplate}/>
+                      <Column field="birthDate" header="年齡" style={{ width: '5%' }} body={(rowData) => formatAge(rowData.birthDate)}/>
+                      <Column field="createdAt" header="新增日期" style={{ width: '10%' }} body={(rowData) => formatDate(rowData.createdAt)} />
+                      <Column field="updatedAt" header="更新日期" style={{ width: '10%' }} body={(rowData) => formatDate(rowData.updatedAt)} />
                       <Column field="optionUserId" header="操作人" style={{ width: '5%' }} />
                       <Column field="option" header="功能" style={{ width: '12%' }} body={optionBodyTemplate} />
                     </DataTable>

@@ -10,6 +10,7 @@ import { useRef, useEffect  } from "react";
 import api from "../../services/api"; 
 import useDataType from '../../hooks/useDataType';
 import { Checkbox, CheckboxChangeEvent  } from "primereact/checkbox";
+import { da } from "@fullcalendar/core/internal-common";
 
 interface Patient {
     fullName: string;
@@ -17,9 +18,9 @@ interface Patient {
     phone: string;
     address: string;
     birthDate: Date | null;
-    emergencycontact: string,
-    emergencyrelationship: string,
-    emergencyphone: string,
+    emergencyContact: string,
+    emergencyRelationship: string,
+    emergencyPhone: string,
     nationalId: string;
     medicalHistory: string;
     exerciseHabit: string;
@@ -47,9 +48,9 @@ const PatientsDetailPage: React.FC = () => {
         phone: "",
         address: "",
         birthDate: null,
-        emergencycontact: "",
-        emergencyrelationship: "",
-        emergencyphone: "",
+        emergencyContact: "",
+        emergencyRelationship: "",
+        emergencyPhone: "",
         nationalId: "",
         medicalHistory: "",
         exerciseHabit: "",
@@ -65,7 +66,7 @@ const PatientsDetailPage: React.FC = () => {
             });
 
             setSelectedMedicalHistories(
-            patient.medicalHistory?.split(", ") || []
+                patient.medicalHistory?.split(", ") || []
             );
         }
         }, [patient]);
@@ -80,20 +81,25 @@ const PatientsDetailPage: React.FC = () => {
     };
 
     const handleSubmit = async () => {
-        try {
-            if (patient) {
-                // 編輯模式
-                await api.put(`/api/patients/Update/`, formData);
-                toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已更新" });
-            } else {
-                // 新增模式
-                await api.post("/api/patients/Insert", formData);
-                toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已新增" });
-            }
-            setTimeout(() => navigate("/patients"), 1500); // 送出後導回列表頁
-        } catch (error) {
-            toast.current?.show({ severity: "error", summary: "錯誤", detail: patient ? "更新失敗" : "新增失敗" });
+
+        const dataToSend = {
+            ...formData,
+            birthDate: formData.birthDate ? toLocalIsoString(formData.birthDate) : null
+        };
+
+
+        if (patient) {
+            // 編輯模式
+            await api.put(`/api/patients/Update/`, dataToSend)
+            .then((res) => toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已更新" }) )
+            .catch((err) => toast.current?.show({ severity: "error", summary: "更新失敗", detail: err.response.data}) );
+        } else {
+            // 新增模式
+            await api.post("/api/patients/Insert", dataToSend)
+            .then((res) => toast.current?.show({ severity: "success", summary: "成功", detail: "病患資料已新增" }) )
+            .catch((err) => toast.current?.show({ severity: "error", summary: "新增失敗", detail: err.response.data}) );
         }
+        setTimeout(() => navigate("/patients"), 1500); // 送出後導回列表頁
     };
 
     const handleMedicalHistoryChange = (e: CheckboxChangeEvent) => {
@@ -107,7 +113,21 @@ const PatientsDetailPage: React.FC = () => {
         setFormData(prev => ({ ...prev, medicalHistory: updated.join(", ") }));
     };
 
-      if (loading) return <p>Loading...</p>;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    const toLocalIsoString = (date: Date) => {
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        const seconds = pad(date.getSeconds());
+
+        // 👉 沒有 'Z' 結尾，表示是本地時間
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    };
+
+    if (loading) return <p>Loading...</p>;
 
     return (
         <div className="p-4">
@@ -146,15 +166,15 @@ const PatientsDetailPage: React.FC = () => {
 
                     <div className="col-6 md:col-4">
                         <label>緊急連絡人</label>
-                        <InputText name="emergencycontact" value={formData.emergencycontact} onChange={handleChange} />
+                        <InputText name="emergencyContact" value={formData.emergencyContact} onChange={handleChange} />
                     </div>
                     <div className="col-5 md:col-2">
                         <label>緊急連絡人關係</label>
-                        <InputText name="emergencyrelationship" value={formData.emergencyrelationship} onChange={handleChange} />
+                        <InputText name="emergencyRelationship" value={formData.emergencyRelationship} onChange={handleChange} />
                     </div>
                     <div className="col-6 md:col-4">
                         <label>緊急連絡人電話</label>
-                        <InputText name="emergencyphone" value={formData.emergencyphone} onChange={handleChange} />
+                        <InputText name="emergencyPhone" value={formData.emergencyPhone} onChange={handleChange} />
                     </div>
                 
 

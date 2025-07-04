@@ -12,8 +12,8 @@ using MyApi.Data;
 namespace MyApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250618084548_AddPatient")]
-    partial class AddPatient
+    [Migration("20250704002149_modifyDatetimeToDateOnly")]
+    partial class modifyDatetimeToDateOnly
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -114,6 +114,9 @@ namespace MyApi.Migrations
 
                     b.Property<string>("Path")
                         .HasColumnType("longtext");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -224,6 +227,50 @@ namespace MyApi.Migrations
                     b.ToTable("Patients");
                 });
 
+            modelBuilder.Entity("MyApi.Models.Receipt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("OptionUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OrdreNo")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TreatmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TreatmentItem")
+                        .HasColumnType("longtext");
+
+                    b.Property<double>("TreatmentMoney")
+                        .HasColumnType("double");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("TreatmentId");
+
+                    b.ToTable("Receipts");
+                });
+
             modelBuilder.Entity("MyApi.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -254,11 +301,11 @@ namespace MyApi.Migrations
 
             modelBuilder.Entity("MyApi.Models.Treatment", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Assessment")
                         .HasColumnType("longtext");
@@ -268,6 +315,9 @@ namespace MyApi.Migrations
 
                     b.Property<string>("DiscomfortArea")
                         .HasColumnType("longtext");
+
+                    b.Property<int>("DiscomfortDegree")
+                        .HasColumnType("int");
 
                     b.Property<string>("DiscomfortPeriod")
                         .HasColumnType("longtext");
@@ -284,9 +334,6 @@ namespace MyApi.Migrations
                     b.Property<string>("HowToKnowOur")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDelete")
                         .HasColumnType("tinyint(1)");
 
@@ -299,10 +346,16 @@ namespace MyApi.Migrations
                     b.Property<string>("OrdreNo")
                         .HasColumnType("longtext");
 
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Plan")
                         .HasColumnType("longtext");
 
                     b.Property<string>("PossibleCauses")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ReceiptUrl")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Step")
@@ -321,9 +374,14 @@ namespace MyApi.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("UserId", "PatientId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Treatments");
                 });
@@ -426,6 +484,25 @@ namespace MyApi.Migrations
                     b.Navigation("Group");
                 });
 
+            modelBuilder.Entity("MyApi.Models.Receipt", b =>
+                {
+                    b.HasOne("MyApi.Models.Patient", "Patient")
+                        .WithMany("Receipts")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyApi.Models.Treatment", "Treatment")
+                        .WithMany("Receipts")
+                        .HasForeignKey("TreatmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("Treatment");
+                });
+
             modelBuilder.Entity("MyApi.Models.Treatment", b =>
                 {
                     b.HasOne("MyApi.Models.Patient", "Patient")
@@ -476,12 +553,19 @@ namespace MyApi.Migrations
 
             modelBuilder.Entity("MyApi.Models.Patient", b =>
                 {
+                    b.Navigation("Receipts");
+
                     b.Navigation("Treatments");
                 });
 
             modelBuilder.Entity("MyApi.Models.Role", b =>
                 {
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("MyApi.Models.Treatment", b =>
+                {
+                    b.Navigation("Receipts");
                 });
 
             modelBuilder.Entity("MyApi.Models.User", b =>

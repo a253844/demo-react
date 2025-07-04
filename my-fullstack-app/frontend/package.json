@@ -6,6 +6,7 @@
     "@fullcalendar/core": "^6.1.17",
     "@fullcalendar/daygrid": "^6.1.17",
     "@fullcalendar/react": "^6.1.17",
+    "@microsoft/signalr": "^8.0.7",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -15,6 +16,7 @@
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
     "axios": "^1.9.0",
+    "date-fns": "^4.1.0",
     "fullcalendar": "^6.1.17",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
@@ -30,7 +32,8 @@
     "start": "set PORT=3309 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "postinstall": "patch-package"
   },
   "eslintConfig": {
     "extends": [
@@ -49,5 +52,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0"
   }
 }

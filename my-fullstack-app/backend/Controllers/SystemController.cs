@@ -108,7 +108,9 @@ namespace MyApi.Controllers
                 groupId = g.Id,
                 groupName = g.Name,
                 groupIcon = g.Icon,
-                menus = g.Menus.Select(m => new {
+                menus = g.Menus
+                .OrderBy(g => g.SortOrder)
+                .Select(m => new {
                     itemId = m.Id,
                     path = m.Path,
                     name = m.Name,

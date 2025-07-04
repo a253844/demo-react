@@ -1,0 +1,213 @@
+import React, {useState, useRef, useEffect}from 'react';
+import { Button } from 'primereact/button';
+import { useNavigate } from "react-router-dom";
+import useReceipt from '../../hooks/useReceipt';
+import { InputText } from "primereact/inputtext";
+import { Calendar } from 'primereact/calendar';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { ProgressSpinner } from "primereact/progressspinner";
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import useUser from '../../hooks/useUser';
+import { Toast } from "primereact/toast";
+import { format } from "date-fns";
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+
+interface OptionItem {
+  code: number;
+  name: string;
+}
+
+const ReceiptsPage: React.FC = () => {
+    const navigate = useNavigate();
+    const toast = useRef<Toast>(null);
+    const [name, setName] = useState('');
+    const [nationalId, setNationalId] = useState('');
+    const [starttime, setStarttime] = useState<Date | null | undefined>(undefined);
+    const [endtime, setEndtime] = useState<Date | null | undefined>(undefined);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const { userRole, Roleloading } =  useUser(2);
+    const [userOptions, setUserOptions] = useState<OptionItem[]>([]);
+
+    const [searchParams, setSearchParams] = useState({
+        name: '',
+        nationalId: '',
+        starttime: null as Date | null | undefined,
+        endtime: null as Date | null | undefined,
+        refreshKey: 0,
+    });
+
+    const { receipts, loading } = useReceipt(
+        searchParams.name, 
+        searchParams.nationalId, 
+        searchParams.starttime, 
+        searchParams.endtime, 
+        refreshKey
+    );
+
+    const genderdict: { [key: string]: string } = {
+        "1": "男性",
+        "2": "女性",
+        "3": "其他"
+    };
+
+    useEffect(() => {
+        if (!Roleloading && userRole.length > 0) {
+             console.log("userRole =", userRole);
+            const simplified = userRole.map((user) => ({
+                code: user.userId,
+                name: user.userName,
+            }));
+            setUserOptions(simplified);
+        }
+    }, [Roleloading, userRole]);
+
+    const handleSearchClick = () => {
+        setRefreshKey(refreshKey + 1)
+        setSearchParams({ name, nationalId, starttime, endtime, refreshKey});
+    };
+
+    const Reload = () => {
+        // 重新觸發 usePatient，等於重新查詢
+        setRefreshKey(prev => prev + 1);
+    }
+
+    const paginatorLeft = (
+        <Button
+            type="button"
+            icon="pi pi-refresh"
+            text
+            onClick={() => Reload()}
+        />
+    );
+    const paginatorRight = <Button type="button" icon="pi pi-download" text />;
+    const optionBodyTemplate = (rowData: any) => {
+        return (
+            <div>
+                    <Button 
+                        label="檢視收據詳情" 
+                        type="button" 
+                        icon="pi pi-file-edit" 
+                        onClick={() => navigate(`/ReceiptsDetail`, { state: { treatment: rowData } })} 
+                        size="small" 
+                        severity="info" 
+                        style={{ fontSize: '1rem', margin: '3px' }} 
+                    />
+            </div>
+        );
+    };
+
+    const genderBodyTemplate = (rowData: any) => {
+        var data = String(rowData.patientGender)
+        const gendar = genderdict[data]
+            return (
+                <div>
+                    {gendar}
+                </div>
+            );
+        };
+
+    const formatDate = (value: string) => {
+        if (!value) return "";
+        const date = new Date(value);
+        return format(date, "yyyy/MM/dd HH:mm:ss");
+    };
+
+    const formatAge = (value: string) => {
+        if (!value) return "";
+        const date = new Date(value);
+        const today = new Date();
+        let age = today.getFullYear() - date.getFullYear();
+
+        const hasNotHadBirthdayThisYear =
+            today.getMonth() < date.getMonth() ||
+            (today.getMonth() === date.getMonth() && today.getDate() < date.getDate());
+
+        if (hasNotHadBirthdayThisYear) {
+            age--;
+        }
+
+        return age;
+        
+    };
+
+    if (loading) {
+          return (
+            <div className="p-4">
+              <ProgressSpinner />
+            </div>
+          );
+        }
+
+    return (
+        <div>
+            <Toast ref={toast} />
+            <ConfirmDialog />
+            <div className="card flex flex-wrap p-fluid">
+                <div className="col-7 md:col-2">
+                    <InputText
+                        id="name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="病患姓名" />
+                </div>
+                <div className="col-7 md:col-2">
+                    <InputText
+                        id="nationalId"
+                        type="text"
+                        value={nationalId}
+                        onChange={(e) => setNationalId(e.target.value)}
+                        placeholder="病患身分證" />
+                </div>
+                
+                <div className="col-6 md:col-2">
+                    <Calendar 
+                        id="starttime" 
+                        value={starttime} 
+                        onChange={(e) => setStarttime(e.value)} 
+                        placeholder="開始時間"
+                        dateFormat="yy/mm/dd"
+                        showIcon/>
+                </div>
+                <div className="col-6 md:col-2">
+                    <Calendar 
+                        id="endtime" 
+                        value={endtime} 
+                        onChange={(e) => setEndtime(e.value)} 
+                        placeholder="結束時間"
+                        dateFormat="yy/mm/dd"
+                        showIcon/>
+                </div>
+                <div className="col-4 md:col-1">
+                    <Button label="查詢" icon="pi pi-search" onClick={handleSearchClick}/>
+                </div>
+            </div>
+            <div className="card">
+                    <DataTable
+                      value={receipts}
+                      paginator
+                      rows={10}
+                      rowsPerPageOptions={[10, 20, 30, 40]}
+                      tableStyle={{ minWidth: '50rem' }}
+                      paginatorLeft={paginatorLeft}
+                      paginatorRight={paginatorRight}
+                    >
+                        
+                      <Column field="ordreNo" header="案號" style={{ width: '5%' }} />  
+                      <Column field="receiptOrdreNo" header="收據編號" style={{ width: '5%' }} />
+                      <Column field="patientName" header="病患姓名" style={{ width: '5%' }} />
+                      <Column field="patientGender" header="性別" style={{ width: '3%' }} body={genderBodyTemplate}/>
+                      <Column field="patientBirthDate" header="年齡" style={{ width: '3%' }}  body={(rowData) => formatAge(rowData.patientBirthDate)}/>
+                      <Column field="receiptCreatedAt" header="新增日期" style={{ width: '8%' }} body={(rowData) => formatDate(rowData.receiptCreatedAt)} />
+                      <Column field="receiptUpdatedAt" header="更新日期" style={{ width: '8%' }} body={(rowData) => formatDate(rowData.receiptUpdatedAt)}/>
+                      <Column field="receiptOptionUserId" header="操作人" style={{ width: '5%' }} />
+                      <Column field="Option" header="功能" style={{ width: '12%' }} body={optionBodyTemplate} />
+                    </DataTable>
+                  </div>
+        </div>
+    );
+};
+
+export default ReceiptsPage;

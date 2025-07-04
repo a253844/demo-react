@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import api from '../services/api';
-import internal from "stream";
 
 // 定義 PatientsItem 中每筆物件的型別
 interface PatientsItem {
@@ -10,6 +9,9 @@ interface PatientsItem {
     Phone: string;
     Address: string;
     BirthDate: string;
+    Emergencycontact: string,
+    Emergencyrelationship: string,
+    Emergencyphone: string,
     NationalId: string;
     MedicalHistory: string;
     ExerciseHabit: string;
@@ -21,7 +23,12 @@ interface PatientsItem {
     OptionUserId: number;
 }
 
-export default function usePatient(FullName: string, StartTime: Date | null | undefined, EndTime: Date | null | undefined, RefreshKey: number ) {
+export default function usePatient(
+  FullName: string, 
+  StartTime: Date | null | undefined, 
+  EndTime: Date | null | undefined, 
+  RefreshKey: number 
+) {
   const [Patients, setPatients] = useState<PatientsItem[]>([]);
   const [loading, setLoading] = useState(true);
 

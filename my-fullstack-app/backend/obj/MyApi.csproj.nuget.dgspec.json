@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\user\\Desktop\\my-fullstack-app\\backend\\MyApi.csproj": {}
+    "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\MyApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\user\\Desktop\\my-fullstack-app\\backend\\MyApi.csproj": {
+    "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\MyApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\user\\Desktop\\my-fullstack-app\\backend\\MyApi.csproj",
+        "projectUniqueName": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\MyApi.csproj",
         "projectName": "MyApi",
-        "projectPath": "C:\\Users\\user\\Desktop\\my-fullstack-app\\backend\\MyApi.csproj",
+        "projectPath": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\MyApi.csproj",
         "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\user\\Desktop\\my-fullstack-app\\backend\\obj\\",
+        "outputPath": "C:\\Users\\user\\Desktop\\demo-git\\demo-react\\my-fullstack-app\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -48,6 +48,10 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "EntityFramework.Extended.Async": {
+              "target": "Package",
+              "version": "[6.1.1, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[8.0.17, )"
@@ -73,6 +77,10 @@
             "Portable.BouncyCastle": {
               "target": "Package",
               "version": "[1.9.0, )"
+            },
+            "QuestPDF": {
+              "target": "Package",
+              "version": "[2022.12.15, )"
             },
             "StackExchange.Redis": {
               "target": "Package",

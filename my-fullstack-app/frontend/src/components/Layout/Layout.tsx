@@ -36,9 +36,17 @@ const Layout: React.FC<LayoutProps> = ({ MenuGroup }) => {
     {
       label: "首頁",
       icon: "pi pi-home",
-      url: "/"
+      command: () => {
+        console.log("點擊首頁");
+        navigate("/");
+      }
     }
   ];
+
+  const debug = () => {
+    // const menuItems = document.querySelectorAll(".p-menubar");
+    // menuItems[0].classList.add("p-menubar-mobile-active");
+  };
 
   // 建立群組選單
   MenuGroup.forEach((group) => {
@@ -47,19 +55,24 @@ const Layout: React.FC<LayoutProps> = ({ MenuGroup }) => {
       .map((data) => ({
         key: data.itemId,
         label: data.name,
-        url: data.path
+        command: () => {
+          navigate(data.path);
+        }
       }));
 
     HeaderItems.push({
       label: group.groupName,
       icon: group.groupIcon,
-      items: templist
+      items: templist,
+      command: () => {
+        debug()
+      }
     });
   });
 
   const HeaderEndItems = (
     <div className="flex align-items-center gap-2">
-      <label className="font-bold block mb-2">醫生您好</label>
+      <label className="font-bold block mb-2">治療師您好</label>
       <Button
         icon="pi pi-sign-out"
         label="登出"

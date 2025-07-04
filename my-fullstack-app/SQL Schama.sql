@@ -10,7 +10,8 @@ INSERT INTO Menus (Path, Name, Disabled, GroupId) VALUES
 ('/schedules', '排班表', FALSE, 1),
 
 -- 群組 2: 病患管理
-('/medical_records', '診療紀錄', FALSE, 2),
+('/treatmentsdetail', '診療詳情', FALSE, 2),
+('/treatments', '診療紀錄', FALSE, 2),
 ('/patients', '病患列表', FALSE, 2),
 ('/patientsdetail', '病患詳情', FALSE, 2),
 ('/treatment_costs', '診療費用', FALSE, 2),
@@ -80,3 +81,8 @@ INSERT INTO DataTypes (Number, Name, IsEnabled, CreatedAt, UpdatedAt) VALUES
 ('805', '腦出/缺血(中風)', true, NOW(), NOW()),
 ('806', '巴金森氏症', true, NOW(), NOW()),
 ('899', '其他', true, NOW(), NOW());
+
+('899', '物理治療評估', true, NOW(), NOW());
+('899', '筋膜鬆動術', true, NOW(), NOW());
+('899', '關節鬆動術', true, NOW(), NOW());
+('899', '運動治療', true, NOW(), NOW());

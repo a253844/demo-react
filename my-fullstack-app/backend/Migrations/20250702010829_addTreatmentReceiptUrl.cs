@@ -5,14 +5,14 @@
 namespace MyApi.Migrations
 {
     /// <inheritdoc />
-    public partial class AddMenuGroupsIcon : Migration
+    public partial class addTreatmentReceiptUrl : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "Icon",
-                table: "MenuGroups",
+                name: "ReceiptUrl",
+                table: "Treatments",
                 type: "longtext",
                 nullable: true)
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -22,8 +22,8 @@ namespace MyApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Icon",
-                table: "MenuGroups");
+                name: "ReceiptUrl",
+                table: "Treatments");
         }
     }
 }
